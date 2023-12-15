@@ -31,16 +31,16 @@ public class UserService {
 	private final TokenProvider tokenProvider;
 
 	public User registerUser(UserRequestDto requestUser) {
-		boolean isFind = userRepository.findByEmail(requestUser.getEmail())
+		boolean isFind = userRepository.findByEmail(requestUser.email())
 				.isPresent();
 		if(isFind){
 			throw new DuplicationException();
 		}
 
 		User user = User.builder()
-				.email(requestUser.getEmail())
-				.name(requestUser.getName())
-				.password(passwordEncoder.encode(requestUser.getPassword()))
+				.email(requestUser.email())
+				.name(requestUser.name())
+				.password(passwordEncoder.encode(requestUser.password()))
 				.authority(Authority.ROLE_USER)
 				.createDate(LocalDateTime.now())
 				.profileImage("blank-profile-picture.png")
@@ -50,12 +50,12 @@ public class UserService {
 	}
 
 	public TokenDto tokenLogin(LoginUserRequestDto requestUser) {
-		String email = requestUser.getEmail();
+		String email = requestUser.email();
 		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new NotFoundException());
+				.orElseThrow(NotFoundException::new);
 
 		// 비밀번호 확인 + spring security 객체 생성 후 JWT 토큰 생성
-		UsernamePasswordAuthenticationToken authenticationToken = user.toAuthentication(requestUser.getPassword());
+		UsernamePasswordAuthenticationToken authenticationToken = user.toAuthentication(requestUser.password());
 		Authentication authentication = SecurityUtil.getAuthentication(authenticationToken, userDetailsService, passwordEncoder);
 
 		// 토큰 발급

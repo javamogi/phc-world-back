@@ -2,8 +2,6 @@ package com.phcworld.user.service;
 
 import com.phcworld.exception.model.DuplicationException;
 import com.phcworld.exception.model.NotFoundException;
-import com.phcworld.jwt.TokenProvider;
-import com.phcworld.jwt.dto.TokenDto;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.domain.User;
 import com.phcworld.user.dto.LoginUserRequestDto;
@@ -12,14 +10,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,11 +24,8 @@ class UserServiceTest {
     @Mock
     private UserService userService;
 
-    @Spy
-    private TokenProvider tokenProvider;
-
     @Test
-    void 회원가입() throws Exception {
+    void 회원가입() {
         UserRequestDto requestDto = UserRequestDto.builder()
                 .email("test3@test.test")
                 .password("test3")
@@ -40,9 +33,9 @@ class UserServiceTest {
                 .build();
 
         User user = User.builder()
-                .email(requestDto.getEmail())
-                .password(requestDto.getPassword())
-                .name(requestDto.getName())
+                .email(requestDto.email())
+                .password(requestDto.password())
+                .name(requestDto.name())
                 .profileImage("blank-profile-picture.png")
                 .authority(Authority.ROLE_USER)
                 .createDate(LocalDateTime.now())
@@ -58,7 +51,7 @@ class UserServiceTest {
         UserRequestDto requestDto = UserRequestDto.builder()
                 .email("test@test.test")
                 .password("test")
-                .name("테스트")
+                .name("test")
                 .build();
         when(userService.registerUser(requestDto)).thenThrow(DuplicationException.class);
         Assertions.assertThrows(DuplicationException.class, () -> {
@@ -90,13 +83,4 @@ class UserServiceTest {
         });
     }
 
-//    @Test
-//    void 로그인_성공(){
-//        LoginUserRequestDto requestDto = LoginUserRequestDto.builder()
-//                .email("test@test.test")
-//                .password("test")
-//                .build();
-//        TokenDto token = tokenProvider.
-//        when(userService.tokenLogin(requestDto)).then(null);
-//    }
 }
