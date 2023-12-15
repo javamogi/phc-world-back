@@ -23,25 +23,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CommonsExceptionHandler {
 
-//    @ExceptionHandler(CustomException.class)
-//    public ResponseEntity handlerException(CustomException e) throws IOException {
-//        Map<String, String> map = e.getMessages();
-//        if(e.getStatusCode().equals("400")){
-//            return new ResponseEntity(map, HttpStatus.BAD_REQUEST);
-//        } else if(e.getStatusCode().equals("401")){
-//            return new ResponseEntity(map, HttpStatus.UNAUTHORIZED);
-//        } else if(e.getStatusCode().equals("403")){
-//            return new ResponseEntity(map, HttpStatus.FORBIDDEN);
-//        } else if(e.getStatusCode().equals("500")){
-//            return new ResponseEntity(map, HttpStatus.INTERNAL_SERVER_ERROR);
-//        } else if(e.getStatusCode().equals("420")){
-//            return new ResponseEntity(map, HttpStatus.METHOD_FAILURE);
-//        }
-//        else {
-//            return new ResponseEntity(map, HttpStatus.NOT_FOUND);
-//        }
-//    }
-
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity handlerBadCredentialsException(){
         return createErrorResponseEntity(ErrorCode.BAD_REQUEST);
