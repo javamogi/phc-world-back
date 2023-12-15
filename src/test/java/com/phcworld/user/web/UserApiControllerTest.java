@@ -1,10 +1,13 @@
 package com.phcworld.user.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phcworld.user.dto.LoginUserRequestDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,6 +24,9 @@ class UserApiControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void 회원가입_성공() throws Exception {
@@ -153,21 +159,16 @@ class UserApiControllerTest {
     }
 
     @Test
-    void 회원_로그인() throws Exception {
-        this.mvc.perform(post("/api/users/login")
-                        .with(csrf())
-                        .param("email", "test@test.test")
-                        .param("password", "test"))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
     void 회원_로그인_실패_비밀번호_틀림() throws Exception {
+        LoginUserRequestDto requestDto = LoginUserRequestDto.builder()
+                .email("test@test.test")
+                .password("testt")
+                .build();
+        String request = objectMapper.writeValueAsString(requestDto);
         this.mvc.perform(post("/api/users/login")
                         .with(csrf())
-                        .param("email", "test@test.test")
-                        .param("password", "testt"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
                 .andDo(print())
                 .andExpect(jsonPath("$.error").value("잘못된 요청입니다."))
                 .andExpect(status().isBadRequest());
@@ -175,10 +176,15 @@ class UserApiControllerTest {
 
     @Test
     void 회원_로그인_실패_없는_이메일() throws Exception {
+        LoginUserRequestDto requestDto = LoginUserRequestDto.builder()
+                .email("testtest@test.test")
+                .password("test")
+                .build();
+        String request = objectMapper.writeValueAsString(requestDto);
         this.mvc.perform(post("/api/users/login")
                         .with(csrf())
-                        .param("email", "testtest@test.test")
-                        .param("password", "testtest"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
                 .andDo(print())
                 .andExpect(jsonPath("$.error").value("존재하지 않는 엔티티입니다."))
                 .andExpect(status().isNotFound());
@@ -186,10 +192,16 @@ class UserApiControllerTest {
 
     @Test
     void 로그인_성공() throws Exception {
+        LoginUserRequestDto requestDto = LoginUserRequestDto.builder()
+                .email("test@test.test")
+                .password("test")
+                .build();
+        String request = objectMapper.writeValueAsString(requestDto);
+
         this.mvc.perform(post("/api/users/login")
                         .with(csrf())
-                        .param("email", "test@test.test")
-                        .param("password", "test"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
                 .andDo(print())
                 .andExpect(status().isOk());
     }

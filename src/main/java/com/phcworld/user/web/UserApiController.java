@@ -8,10 +8,7 @@ import com.phcworld.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -28,7 +25,7 @@ public class UserApiController {
     }
 
     @PostMapping("/login")
-    public TokenDto login(@Valid @ModelAttribute LoginUserRequestDto user) {
+    public TokenDto login(@Valid @RequestBody LoginUserRequestDto user) {
         return userService.tokenLogin(user);
     }
 }
