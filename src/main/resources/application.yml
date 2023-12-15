@@ -1,0 +1,27 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  profiles:
+    active: dev
+    include: mail
+
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force-request: true
+      force: true
+      force-response: true
+
+jwt:
+  secret: c3ByaW5nLXNlY3VyaXR5LWp3dC1waGMtd29ybGQtc2VjcmV0LWtleQ==
