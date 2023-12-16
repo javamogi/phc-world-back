@@ -1,7 +1,6 @@
 package com.phcworld.user.service;
 
 import com.phcworld.exception.model.DuplicationException;
-import com.phcworld.exception.model.NotFoundException;
 import com.phcworld.jwt.TokenProvider;
 import com.phcworld.jwt.dto.TokenDto;
 import com.phcworld.jwt.service.CustomUserDetailsService;
@@ -12,7 +11,6 @@ import com.phcworld.user.dto.LoginUserRequestDto;
 import com.phcworld.user.dto.UserRequestDto;
 import com.phcworld.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,13 +48,8 @@ public class UserService {
 	}
 
 	public TokenDto tokenLogin(LoginUserRequestDto requestUser) {
-		String email = requestUser.email();
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(NotFoundException::new);
-
 		// 비밀번호 확인 + spring security 객체 생성 후 JWT 토큰 생성
-		UsernamePasswordAuthenticationToken authenticationToken = user.toAuthentication(requestUser.password());
-		Authentication authentication = SecurityUtil.getAuthentication(authenticationToken, userDetailsService, passwordEncoder);
+		Authentication authentication = SecurityUtil.getAuthentication(requestUser, userDetailsService, passwordEncoder);
 
 		// 토큰 발급
 		return tokenProvider.generateTokenDto(authentication);
