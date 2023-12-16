@@ -1,26 +1,29 @@
 package com.phcworld.jwt;
 
-import com.phcworld.exception.model.NotFoundException;
 import com.phcworld.exception.model.UnauthorizedException;
 import com.phcworld.jwt.dto.TokenDto;
 import com.phcworld.security.utils.SecurityUtil;
-import com.phcworld.user.domain.User;
-import com.phcworld.user.repository.UserRepository;
+import com.phcworld.user.domain.Authority;
+import com.phcworld.user.dto.LoginUserRequestDto;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Base64;
-import java.util.Date;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,9 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @Slf4j
 class TokenProviderTest {
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private TokenProvider tokenProvider;
@@ -41,8 +41,17 @@ class TokenProviderTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    private Authentication authentication;
+
+    @BeforeEach
+    void setAuthentication(){
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(new String[]{Authority.ROLE_ADMIN.toString()})
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+        UserDetails principal = new org.springframework.security.core.userdetails.User("test@test.test", "", authorities);
+        authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
+    }
 
     @Test
     public void 비밀키_암호화(){
@@ -61,20 +70,14 @@ class TokenProviderTest {
 
     @Test
     void 토큰_생성(){
-        User user = userRepository.findById(1L)
-                .orElseThrow(NotFoundException::new);
         long now = (new Date()).getTime();
-        Authentication authentication = SecurityUtil.getAuthentication(user.toAuthentication("test"), userDetailsService, passwordEncoder);
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
         log.info("access token : {}", accessToken);
     }
 
     @Test
     void 토큰_검증_성공(){
-        User user = userRepository.findById(1L)
-                .orElseThrow(NotFoundException::new);
         long now = (new Date()).getTime();
-        Authentication authentication = SecurityUtil.getAuthentication(user.toAuthentication("test"), userDetailsService, passwordEncoder);
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
         boolean result = tokenProvider.validateToken(accessToken);
         assertThat(result).isTrue();
@@ -82,10 +85,7 @@ class TokenProviderTest {
 
     @Test
     void 토큰_검증_잘못된_토큰(){
-        User user = userRepository.findById(1L)
-                .orElseThrow(NotFoundException::new);
         long now = (new Date()).getTime();
-        Authentication authentication = SecurityUtil.getAuthentication(user.toAuthentication("test"), userDetailsService, passwordEncoder);
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
         String finalAccessToken = accessToken.replace(".", "");
         Assertions.assertThrows(UnauthorizedException.class, () -> {
@@ -106,9 +106,6 @@ class TokenProviderTest {
 
     @Test
     void 토큰_응답_dto_생성(){
-        User user = userRepository.findById(1L)
-                .orElseThrow(NotFoundException::new);
-        Authentication authentication = SecurityUtil.getAuthentication(user.toAuthentication("test"), userDetailsService, passwordEncoder);
         TokenDto dto = tokenProvider.generateTokenDto(authentication);
         log.info("token : {}", dto);
     }

@@ -4,7 +4,6 @@ import com.phcworld.utils.LocalDateTimeUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -55,7 +54,4 @@ public class User implements Serializable {
 		return Objects.hash(id, email, name, authority);
 	}
 
-	public UsernamePasswordAuthenticationToken toAuthentication(String password) {
-		return new UsernamePasswordAuthenticationToken(id, password);
-	}
 }
