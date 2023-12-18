@@ -21,6 +21,5 @@ spring:
 
 logging:
   level:
-    com.phcworld.web: debug
-    com.phcworld.domain: debug
+    com.phcworld: debug
     org.springframework.security: debug
