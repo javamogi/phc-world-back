@@ -42,7 +42,7 @@ public class UserApiController {
     }
 
     @PatchMapping("")
-    public UserResponseDto updateUser(@RequestBody UserRequestDto requestDto){
+    public UserResponseDto updateUser(@ModelAttribute UserRequestDto requestDto){
         return userService.modifyUserInfo(requestDto);
     }
 

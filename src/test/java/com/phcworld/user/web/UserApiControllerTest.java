@@ -291,19 +291,13 @@ class UserApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
 
-        UserRequestDto requestDto = UserRequestDto.builder()
-                .id(1L)
-                .email("test@test.test")
-                .password("test")
-                .name("test")
-                .build();
-        String request = objectMapper.writeValueAsString(requestDto);
-
         this.mvc.perform(patch("/api/users")
                         .with(csrf())
                         .header("Authorization", "Bearer " + accessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
+                        .param("id", "1")
+                        .param("email", "test@test.test")
+                        .param("password", "test")
+                        .param("name", "test"))
                 .andDo(print())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.email").value("test@test.test"))
