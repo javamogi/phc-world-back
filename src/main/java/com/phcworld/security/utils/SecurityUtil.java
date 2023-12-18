@@ -8,6 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.stream.Collectors;
 
 @Slf4j
 public class SecurityUtil {
@@ -19,6 +22,17 @@ public class SecurityUtil {
             throw new RuntimeException("Security Context 에 인증 정보가 없습니다.");
         }
         return Long.valueOf(authentication.getName());
+    }
+
+    public static String getAuthorities() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || authentication.getName() == null) {
+            throw new RuntimeException("Security Context 에 인증 정보가 없습니다.");
+        }
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
     }
 
     public static Authentication getAuthentication(LoginUserRequestDto requestDto,

@@ -1,18 +1,32 @@
 package com.phcworld.user.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phcworld.jwt.TokenProvider;
+import com.phcworld.user.domain.Authority;
 import com.phcworld.user.dto.LoginUserRequestDto;
+import com.phcworld.user.dto.UserRequestDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,6 +41,9 @@ class UserApiControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private TokenProvider tokenProvider;
 
     @Test
     void 회원가입_성공() throws Exception {
@@ -204,6 +221,163 @@ class UserApiControllerTest {
                         .content(request))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void 로그인_회원_정보_가져오기() throws Exception {
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(new String[]{Authority.ROLE_ADMIN.toString()})
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+        UserDetails principal = new org.springframework.security.core.userdetails.User("1", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        long now = (new Date()).getTime();
+        String accessToken = tokenProvider.generateAccessToken(authentication, now);
+
+        this.mvc.perform(get("/api/users/userInfo")
+                        .with(csrf())
+                        .header("Authorization", "Bearer " + accessToken))
+                .andDo(print())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("test@test.test"))
+                .andExpect(jsonPath("$.name").value("테스트"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void 요청_회원_정보_가져오기() throws Exception { // 관리자만 가능하게 변경예정
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(new String[]{Authority.ROLE_ADMIN.toString()})
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+        UserDetails principal = new org.springframework.security.core.userdetails.User("1", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        long now = (new Date()).getTime();
+        String accessToken = tokenProvider.generateAccessToken(authentication, now);
+
+        this.mvc.perform(get("/api/users/{id}", 2L)
+                        .with(csrf())
+                        .header("Authorization", "Bearer " + accessToken))
+                .andDo(print())
+                .andExpect(jsonPath("$.id").value(2))
+                .andExpect(jsonPath("$.email").value("test2@test.test"))
+                .andExpect(jsonPath("$.name").value("테스트2"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void 회원_정보_변경() throws Exception {
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(new String[]{Authority.ROLE_ADMIN.toString()})
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+        UserDetails principal = new org.springframework.security.core.userdetails.User("1", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        long now = (new Date()).getTime();
+        String accessToken = tokenProvider.generateAccessToken(authentication, now);
+
+        UserRequestDto requestDto = UserRequestDto.builder()
+                .id(1L)
+                .email("test@test.test")
+                .password("test")
+                .name("test")
+                .build();
+        String request = objectMapper.writeValueAsString(requestDto);
+
+        this.mvc.perform(patch("/api/users")
+                        .with(csrf())
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andDo(print())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("test@test.test"))
+                .andExpect(jsonPath("$.name").value("test"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void 회원_정보_변경_실패_요청_회원_다름() throws Exception {
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(new String[]{Authority.ROLE_ADMIN.toString()})
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+        UserDetails principal = new org.springframework.security.core.userdetails.User("1", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        long now = (new Date()).getTime();
+        String accessToken = tokenProvider.generateAccessToken(authentication, now);
+
+        UserRequestDto requestDto = UserRequestDto.builder()
+                .id(2L)
+                .email("test2@test.test")
+                .password("test2")
+                .name("test2")
+                .build();
+        String request = objectMapper.writeValueAsString(requestDto);
+
+        this.mvc.perform(patch("/api/users")
+                        .with(csrf())
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void 회원_정보_삭제_성공() throws Exception {
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(new String[]{Authority.ROLE_ADMIN.toString()})
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+        UserDetails principal = new org.springframework.security.core.userdetails.User("1", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        long now = (new Date()).getTime();
+        String accessToken = tokenProvider.generateAccessToken(authentication, now);
+
+        this.mvc.perform(delete("/api/users/{id}", 1L)
+                        .with(csrf())
+                        .header("Authorization", "Bearer " + accessToken))
+                .andDo(print())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.message").value("삭제 성공"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void 회원_정보_삭제_성공_관리자_권한() throws Exception {
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(new String[]{Authority.ROLE_ADMIN.toString()})
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+        UserDetails principal = new org.springframework.security.core.userdetails.User("1", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        long now = (new Date()).getTime();
+        String accessToken = tokenProvider.generateAccessToken(authentication, now);
+
+        this.mvc.perform(delete("/api/users/{id}", 2L)
+                        .with(csrf())
+                        .header("Authorization", "Bearer " + accessToken))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void 회원_정보_삭제_요청_회원_다름() throws Exception {
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(new String[]{Authority.ROLE_USER.toString()})
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+        UserDetails principal = new org.springframework.security.core.userdetails.User("2", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        long now = (new Date()).getTime();
+        String accessToken = tokenProvider.generateAccessToken(authentication, now);
+
+        this.mvc.perform(delete("/api/users/{id}", 1L)
+                        .with(csrf())
+                        .header("Authorization", "Bearer " + accessToken))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
     }
 
 }

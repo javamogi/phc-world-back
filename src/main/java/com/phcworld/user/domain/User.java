@@ -1,9 +1,11 @@
 package com.phcworld.user.domain;
 
+import com.phcworld.user.dto.UserRequestDto;
 import com.phcworld.utils.LocalDateTimeUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -17,6 +19,7 @@ import java.util.Objects;
 @Accessors(chain = true)
 @ToString(exclude = "password")
 @Table(name = "USERS")
+@DynamicUpdate
 public class User implements Serializable {
 
 	@Id
@@ -36,6 +39,8 @@ public class User implements Serializable {
 	private LocalDateTime createDate;
 
 	private String profileImage;
+
+	private Boolean isDeleted;
 	
 	public String getFormattedCreateDate() {
 		return LocalDateTimeUtils.getTime(createDate);
@@ -54,4 +59,12 @@ public class User implements Serializable {
 		return Objects.hash(id, email, name, authority);
 	}
 
+	public void modify(UserRequestDto requestDto) {
+		this.password = requestDto.password();
+		this.name = requestDto.name();
+	}
+
+	public void delete() {
+		this.isDeleted = true;
+	}
 }

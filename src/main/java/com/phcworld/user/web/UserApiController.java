@@ -1,5 +1,6 @@
 package com.phcworld.user.web;
 
+import com.phcworld.common.dto.SuccessResponseDto;
 import com.phcworld.user.dto.LoginUserRequestDto;
 import com.phcworld.user.dto.UserRequestDto;
 import com.phcworld.user.dto.UserResponseDto;
@@ -9,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.function.EntityResponse;
 
 
 @RestController
@@ -27,5 +29,25 @@ public class UserApiController {
     @PostMapping("/login")
     public TokenDto login(@Valid @RequestBody LoginUserRequestDto user) {
         return userService.tokenLogin(user);
+    }
+
+    @GetMapping("/userInfo")
+    public UserResponseDto getUserInfo(){
+        return userService.getLoginUserInfo();
+    }
+
+    @GetMapping("/{id}")
+    public UserResponseDto getUserInfo(@PathVariable(name = "id") Long id){
+        return userService.getUserInfo(id);
+    }
+
+    @PatchMapping("")
+    public UserResponseDto updateUser(@RequestBody UserRequestDto requestDto){
+        return userService.modifyUserInfo(requestDto);
+    }
+
+    @DeleteMapping("/{id}")
+    public SuccessResponseDto deleteUser(@PathVariable(name = "id") Long id){
+        return userService.deleteUser(id);
     }
 }
