@@ -1,13 +1,16 @@
 package com.phcworld.user.service;
 
+import com.phcworld.common.dto.SuccessResponseDto;
 import com.phcworld.exception.model.DuplicationException;
 import com.phcworld.exception.model.NotFoundException;
+import com.phcworld.exception.model.UnauthorizedException;
 import com.phcworld.jwt.TokenProvider;
 import com.phcworld.jwt.dto.TokenDto;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.domain.User;
 import com.phcworld.user.dto.LoginUserRequestDto;
 import com.phcworld.user.dto.UserRequestDto;
+import com.phcworld.user.dto.UserResponseDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -100,6 +103,122 @@ class UserServiceTest {
         when(userService.tokenLogin(requestDto)).thenReturn(tokenDto);
         TokenDto resultToken = userService.tokenLogin(requestDto);
         assertThat(resultToken).isEqualTo(tokenDto);
+    }
+
+    @Test
+    void 로그인_회원_정보_가져오기(){
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .createDate("방금전")
+                .build();
+        when(userService.getLoginUserInfo()).thenReturn(userResponseDto);
+        UserResponseDto result = userService.getLoginUserInfo();
+        assertThat(result).isEqualTo(userResponseDto);
+    }
+
+    @Test
+    void 회원_정보_가져오기(){
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .createDate("방금전")
+                .build();
+        when(userService.getUserInfo(1L)).thenReturn(userResponseDto);
+        UserResponseDto result = userService.getUserInfo(1L);
+        assertThat(result).isEqualTo(userResponseDto);
+    }
+
+    @Test
+    void 회원_정보_요청_없는_회원(){
+        when(userService.getUserInfo(3L)).thenThrow(NotFoundException.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            userService.getUserInfo(3L);
+        });
+    }
+
+    @Test
+    void 회원_정보_변경_성공(){
+        UserRequestDto requestDto = UserRequestDto.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("test")
+                .password("test")
+                .build();
+
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("test")
+                .createDate("방금전")
+                .build();
+        when(userService.modifyUserInfo(requestDto)).thenReturn(userResponseDto);
+        UserResponseDto result = userService.modifyUserInfo(requestDto);
+        assertThat(result).isEqualTo(userResponseDto);
+    }
+
+    @Test
+    void 회원_정보_변경_실패_로그인_회원_요청_회원_다름(){
+        UserRequestDto requestDto = UserRequestDto.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("test")
+                .password("test")
+                .build();
+
+        when(userService.modifyUserInfo(requestDto)).thenThrow(UnauthorizedException.class);
+        Assertions.assertThrows(UnauthorizedException.class, () -> {
+            userService.modifyUserInfo(requestDto);
+        });
+    }
+
+    @Test
+    void 회원_정보_변경_실패_없는_회원(){
+        UserRequestDto requestDto = UserRequestDto.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("test")
+                .password("test")
+                .build();
+
+        when(userService.modifyUserInfo(requestDto)).thenThrow(NotFoundException.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            userService.modifyUserInfo(requestDto);
+        });
+    }
+
+    @Test
+    void 회원_정보_삭제_성공(){
+        SuccessResponseDto successResponseDto = SuccessResponseDto.builder()
+                .statusCode(200)
+                .message("삭제 성공")
+                .build();
+
+        when(userService.deleteUser(1L)).thenReturn(successResponseDto);
+        SuccessResponseDto result = userService.deleteUser(1L);
+        assertThat(result).isEqualTo(successResponseDto);
+    }
+
+    @Test
+    void 회원_정보_삭제_실패_로그인_회원_요청_회원_다름(){
+        Long id = 1L;
+        when(userService.deleteUser(id)).thenThrow(UnauthorizedException.class);
+
+        Assertions.assertThrows(UnauthorizedException.class, () -> {
+            userService.deleteUser(id);
+        });
+    }
+
+    @Test
+    void 회원_정보_삭제_실패_회원_없음(){
+        Long id = 1L;
+        when(userService.deleteUser(id)).thenThrow(NotFoundException.class);
+
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            userService.deleteUser(id);
+        });
     }
 
 }

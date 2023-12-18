@@ -1,6 +1,9 @@
 package com.phcworld.user.service;
 
+import com.phcworld.common.dto.SuccessResponseDto;
 import com.phcworld.exception.model.DuplicationException;
+import com.phcworld.exception.model.NotFoundException;
+import com.phcworld.exception.model.UnauthorizedException;
 import com.phcworld.jwt.TokenProvider;
 import com.phcworld.jwt.dto.TokenDto;
 import com.phcworld.jwt.service.CustomUserDetailsService;
@@ -9,14 +12,20 @@ import com.phcworld.user.domain.Authority;
 import com.phcworld.user.domain.User;
 import com.phcworld.user.dto.LoginUserRequestDto;
 import com.phcworld.user.dto.UserRequestDto;
+import com.phcworld.user.dto.UserResponseDto;
 import com.phcworld.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.function.EntityResponse;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -55,4 +64,44 @@ public class UserService {
 		return tokenProvider.generateTokenDto(authentication);
 	}
 
+	public UserResponseDto getLoginUserInfo(){
+		Long userId = SecurityUtil.getCurrentMemberId();
+		User user = userRepository.findById(userId)
+				.orElseThrow(NotFoundException::new);
+		return UserResponseDto.of(user);
+	}
+
+	public UserResponseDto getUserInfo(Long userId){
+		User user = userRepository.findById(userId)
+				.orElseThrow(NotFoundException::new);
+		return UserResponseDto.of(user);
+	}
+
+	public UserResponseDto modifyUserInfo(UserRequestDto requestDto){
+		Long userId = SecurityUtil.getCurrentMemberId();
+		if(!userId.equals(requestDto.id())){
+			throw new UnauthorizedException();
+		}
+		User user = userRepository.findById(requestDto.id())
+				.orElseThrow(NotFoundException::new);
+		user.modify(requestDto);
+		return UserResponseDto.of(user);
+	}
+
+	public SuccessResponseDto deleteUser(Long id) {
+		Long userId = SecurityUtil.getCurrentMemberId();
+		String authorities = SecurityUtil.getAuthorities();
+
+		if(!userId.equals(id) && !authorities.equals(Authority.ROLE_ADMIN.toString())){
+			throw new UnauthorizedException();
+		}
+		User user = userRepository.findById(id)
+				.orElseThrow(NotFoundException::new);
+		user.delete();
+
+		return SuccessResponseDto.builder()
+				.statusCode(200)
+				.message("삭제 성공")
+				.build();
+	}
 }

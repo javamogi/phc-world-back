@@ -8,7 +8,7 @@ public record UserResponseDto(
         Long id,
         String email,
         String name,
-        String creatDate,
+        String createDate,
         String profileImage
 ) {
     public static UserResponseDto of(User user){
@@ -16,7 +16,7 @@ public record UserResponseDto(
                 .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
-                .creatDate(user.getFormattedCreateDate())
+                .createDate(user.getFormattedCreateDate())
                 .profileImage(user.getProfileImage())
                 .build();
     }
