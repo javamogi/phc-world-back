@@ -208,6 +208,21 @@ class UserApiControllerTest {
     }
 
     @Test
+    void 회원_로그인_실패_삭제된_회원() throws Exception {
+        LoginUserRequestDto requestDto = LoginUserRequestDto.builder()
+                .email("test3@test.test")
+                .password("test3")
+                .build();
+        String request = objectMapper.writeValueAsString(requestDto);
+        this.mvc.perform(post("/api/users/login")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andDo(print())
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void 로그인_성공() throws Exception {
         LoginUserRequestDto requestDto = LoginUserRequestDto.builder()
                 .email("test@test.test")
@@ -245,7 +260,7 @@ class UserApiControllerTest {
     }
 
     @Test
-    void 요청_회원_정보_가져오기() throws Exception { // 관리자만 가능하게 변경예정
+    void 요청_회원_정보_가져오기() throws Exception {
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(new String[]{Authority.ROLE_ADMIN.toString()})
                         .map(SimpleGrantedAuthority::new)

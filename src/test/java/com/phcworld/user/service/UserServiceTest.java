@@ -1,6 +1,7 @@
 package com.phcworld.user.service;
 
 import com.phcworld.common.dto.SuccessResponseDto;
+import com.phcworld.exception.model.DeletedUserException;
 import com.phcworld.exception.model.DuplicationException;
 import com.phcworld.exception.model.NotFoundException;
 import com.phcworld.exception.model.UnauthorizedException;
@@ -85,6 +86,18 @@ class UserServiceTest {
                 .build();
         when(userService.tokenLogin(requestDto)).thenThrow(BadCredentialsException.class);
         Assertions.assertThrows(BadCredentialsException.class, () -> {
+            userService.tokenLogin(requestDto);
+        });
+    }
+
+    @Test
+    void 로그인_실패_삭제된_회원(){
+        LoginUserRequestDto requestDto = LoginUserRequestDto.builder()
+                .email("test@test.test")
+                .password("test1")
+                .build();
+        when(userService.tokenLogin(requestDto)).thenThrow(DeletedUserException.class);
+        Assertions.assertThrows(DeletedUserException.class, () -> {
             userService.tokenLogin(requestDto);
         });
     }

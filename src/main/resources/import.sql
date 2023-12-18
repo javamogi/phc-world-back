@@ -1,6 +1,6 @@
-insert into users(EMAIL, PASSWORD, NAME, AUTHORITY, CREATE_DATE, PROFILE_IMAGE) values('test@test.test', '$2a$10$aWqY0MzLKnt.6bvFk4zhPu.HZDabDQttLC2uAupM1yq1p6cTSTjSi', '테스트', 'ROLE_ADMIN', CURRENT_TIMESTAMP(), 'blank-profile-picture.png');
-insert into users(EMAIL, PASSWORD, NAME, AUTHORITY, CREATE_DATE, PROFILE_IMAGE) values('test2@test.test', 'test2', '테스트2', 'ROLE_USER', CURRENT_TIMESTAMP(), 'blank-profile-picture.png');
-insert into users(EMAIL, PASSWORD, NAME, AUTHORITY, CREATE_DATE, PROFILE_IMAGE) values('test3@test.test', 'test3', '테스트3', 'ROLE_USER', CURRENT_TIMESTAMP(), 'blank-profile-picture.png');
+insert into users(EMAIL, PASSWORD, NAME, AUTHORITY, CREATE_DATE, PROFILE_IMAGE, IS_DELETED) values('test@test.test', '$2a$10$aWqY0MzLKnt.6bvFk4zhPu.HZDabDQttLC2uAupM1yq1p6cTSTjSi', '테스트', 'ROLE_ADMIN', CURRENT_TIMESTAMP(), 'blank-profile-picture.png', false);
+insert into users(EMAIL, PASSWORD, NAME, AUTHORITY, CREATE_DATE, PROFILE_IMAGE, IS_DELETED) values('test2@test.test', 'test2', '테스트2', 'ROLE_USER', CURRENT_TIMESTAMP(), 'blank-profile-picture.png', false);
+insert into users(EMAIL, PASSWORD, NAME, AUTHORITY, CREATE_DATE, PROFILE_IMAGE, IS_DELETED) values('test3@test.test', 'test3', '테스트3', 'ROLE_USER', CURRENT_TIMESTAMP(), 'blank-profile-picture.png', true);
 
 -- insert into free_board(ID, WRITER_ID, TITLE, CONTENTS, COUNT, CREATE_DATE, UPDATE_DATE, ICON, BADGE) values('1', '1', 'test', 'test', 0, '2018-07-16 15:55:20.879', '2018-07-16 15:55:20.879', '', '');
 -- insert into free_board(ID, WRITER_ID, TITLE, CONTENTS, COUNT, CREATE_DATE, UPDATE_DATE, ICON, BADGE) values('2', '1', 'test2', 'test2', 0, '2018-07-17 15:55:20.879', '2018-07-17 15:55:20.879', '', '');
