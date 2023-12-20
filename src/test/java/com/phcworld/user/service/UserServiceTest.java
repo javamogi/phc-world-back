@@ -12,6 +12,7 @@ import com.phcworld.user.domain.User;
 import com.phcworld.user.dto.LoginUserRequestDto;
 import com.phcworld.user.dto.UserRequestDto;
 import com.phcworld.user.dto.UserResponseDto;
+import io.netty.handler.codec.base64.Base64Encoder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +21,11 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -153,12 +158,18 @@ class UserServiceTest {
     }
 
     @Test
-    void 회원_정보_변경_성공(){
+    void 회원_정보_변경_성공() throws IOException {
+        File file = new File("src/main/resources/static/PHC-WORLD.png");
+        byte[] bytesFile = Files.readAllBytes(file.toPath());
+        String imgData = Base64.getEncoder().encodeToString(bytesFile);
+
         UserRequestDto requestDto = UserRequestDto.builder()
                 .id(1L)
                 .email("test@test.test")
                 .name("test")
                 .password("test")
+                .imageData(imgData)
+                .imageName("test.png")
                 .build();
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
@@ -166,6 +177,7 @@ class UserServiceTest {
                 .email("test@test.test")
                 .name("test")
                 .createDate("방금전")
+                .profileImage("imgUrl")
                 .build();
         when(userService.modifyUserInfo(requestDto)).thenReturn(userResponseDto);
         UserResponseDto result = userService.modifyUserInfo(requestDto);

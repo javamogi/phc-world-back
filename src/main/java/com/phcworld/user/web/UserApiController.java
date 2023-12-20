@@ -50,4 +50,9 @@ public class UserApiController {
     public SuccessResponseDto deleteUser(@PathVariable(name = "id") Long id){
         return userService.deleteUser(id);
     }
+
+    @GetMapping("/logout")
+    public String logout(){
+        return userService.logout();
+    }
 }
