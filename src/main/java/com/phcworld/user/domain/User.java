@@ -59,9 +59,10 @@ public class User implements Serializable {
 		return Objects.hash(id, email, name, authority);
 	}
 
-	public void modify(UserRequestDto requestDto) {
-		this.password = requestDto.password();
-		this.name = requestDto.name();
+	public void modify(String password, String name, String profileImage) {
+		this.password = password;
+		this.name = name;
+		this.profileImage = profileImage;
 	}
 
 	public void delete() {

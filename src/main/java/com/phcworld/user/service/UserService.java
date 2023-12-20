@@ -68,7 +68,16 @@ public class UserService {
 		Long userId = SecurityUtil.getCurrentMemberId();
 		User user = userRepository.findById(userId)
 				.orElseThrow(NotFoundException::new);
-		return UserResponseDto.of(user);
+		String base64ImgData = uploadFileService.getFileData(user.getProfileImage());
+		UserResponseDto userResponseDto = UserResponseDto.builder()
+				.id(user.getId())
+				.email(user.getEmail())
+				.createDate(user.getFormattedCreateDate())
+				.name(user.getName())
+				.profileImage(base64ImgData)
+				.build();
+//		return UserResponseDto.of(user);
+		return userResponseDto;
 	}
 
 	public UserResponseDto getUserInfo(Long userId){
@@ -84,12 +93,12 @@ public class UserService {
 		}
 		User user = userRepository.findById(requestDto.id())
 				.orElseThrow(NotFoundException::new);
-		user.modify(requestDto);
-		uploadFileService.registerFile(
+		String profileImg = uploadFileService.registerFile(
 				userId,
 				requestDto.imageName(),
 				requestDto.imageData(),
 				FileType.USER_PROFILE_IMG);
+		user.modify(passwordEncoder.encode(requestDto.password()), requestDto.name(), profileImg);
 		return UserResponseDto.of(user);
 	}
 

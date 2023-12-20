@@ -1,5 +1,6 @@
 package com.phcworld.file.service;
 
+import com.phcworld.exception.model.NotFoundException;
 import com.phcworld.file.domain.FileType;
 import com.phcworld.file.domain.UploadFile;
 import com.phcworld.file.repository.UploadFileRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -18,7 +20,7 @@ import java.util.UUID;
 public class UploadFileService {
     private final UploadFileRepository uploadFileRepository;
 
-    public void registerFile(Long postId, String imgName, String imgData, FileType fileType) {
+    public String registerFile(Long postId, String imgName, String imgData, FileType fileType) {
         Base64.Decoder decoder = Base64.getDecoder();
         byte[] decodedBytes = decoder.decode(imgData);
 
@@ -47,5 +49,28 @@ public class UploadFileService {
                 .build();
 
         uploadFileRepository.save(uploadFile);
+        return randName;
+    }
+
+    public String getFileData(String imgName){
+        // 임시 업로드 폴더
+        // 추후 aws s3 연동 또는 다른 곳으로
+        String filePath = "src/main/resources/static/";
+        File file = new File(filePath + imgName);
+        if(!file.isFile()){
+            throw new NotFoundException();
+        }
+        String imgData = "";
+        try {
+            byte[] bytesFile = Files.readAllBytes(file.toPath());
+            imgData = Base64.getEncoder().encodeToString(bytesFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String fileExtension = imgName.substring(imgName.lastIndexOf(".") + 1);
+        // image 이외의 파일은 어떻게 처리할 것인가?
+        String data = "data:image/" + fileExtension + ";base64,";
+        return data + imgData;
+//        return imgData;
     }
 }

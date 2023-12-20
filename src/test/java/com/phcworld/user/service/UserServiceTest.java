@@ -161,7 +161,7 @@ class UserServiceTest {
     void 회원_정보_변경_성공() throws IOException {
         File file = new File("src/main/resources/static/PHC-WORLD.png");
         byte[] bytesFile = Files.readAllBytes(file.toPath());
-        String imgData = Base64.getEncoder().encode(bytesFile).toString();
+        String imgData = Base64.getEncoder().encodeToString(bytesFile);
 
         UserRequestDto requestDto = UserRequestDto.builder()
                 .id(1L)
