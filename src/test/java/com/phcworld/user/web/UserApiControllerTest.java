@@ -20,7 +20,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 
@@ -291,17 +294,31 @@ class UserApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
 
+        File file = new File("src/main/resources/static/PHC-WORLD.png");
+        byte[] bytesFile = Files.readAllBytes(file.toPath());
+        String imgData = Base64.getEncoder().encodeToString(bytesFile);
+
+        UserRequestDto userRequestDto = UserRequestDto.builder()
+                .id(1L)
+                .email("test@test.test")
+                .password("test")
+                .name("테스트")
+                .imageName("test.png")
+                .imageData(imgData)
+                .build();
+
+        String request = objectMapper.writeValueAsString(userRequestDto);
+
         this.mvc.perform(patch("/api/users")
                         .with(csrf())
                         .header("Authorization", "Bearer " + accessToken)
-                        .param("id", "1")
-                        .param("email", "test@test.test")
-                        .param("password", "test")
-                        .param("name", "test"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                        )
                 .andDo(print())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.email").value("test@test.test"))
-                .andExpect(jsonPath("$.name").value("test"))
+                .andExpect(jsonPath("$.name").value("테스트"))
                 .andExpect(status().isOk());
     }
 

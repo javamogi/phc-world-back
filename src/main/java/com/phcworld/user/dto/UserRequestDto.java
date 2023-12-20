@@ -18,5 +18,7 @@ public record UserRequestDto(
         @NotBlank(message = "이름을 입력하세요.")
         @Size(min = 3, max = 20, message = "이름은 영문 3자 이상 20자 이하 또는 한글 두자이상 6자 이하로 해야합니다.")
         @Pattern(regexp = "^[가-힣a-zA-Z0-9]+$", message = "이름은 한글, 영문, 숫자만 가능합니다.")
-        String name) {
+        String name,
+        String imageData,
+        String imageName) {
 }

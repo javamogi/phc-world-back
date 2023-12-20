@@ -42,12 +42,17 @@ public class UserApiController {
     }
 
     @PatchMapping("")
-    public UserResponseDto updateUser(@ModelAttribute UserRequestDto requestDto){
+    public UserResponseDto updateUser(@RequestBody UserRequestDto requestDto){
         return userService.modifyUserInfo(requestDto);
     }
 
     @DeleteMapping("/{id}")
     public SuccessResponseDto deleteUser(@PathVariable(name = "id") Long id){
         return userService.deleteUser(id);
+    }
+
+    @GetMapping("/logout")
+    public String logout(){
+        return userService.logout();
     }
 }

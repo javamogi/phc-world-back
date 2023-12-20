@@ -4,6 +4,8 @@ import com.phcworld.common.dto.SuccessResponseDto;
 import com.phcworld.exception.model.DuplicationException;
 import com.phcworld.exception.model.NotFoundException;
 import com.phcworld.exception.model.UnauthorizedException;
+import com.phcworld.file.domain.FileType;
+import com.phcworld.file.service.UploadFileService;
 import com.phcworld.jwt.TokenProvider;
 import com.phcworld.jwt.dto.TokenDto;
 import com.phcworld.jwt.service.CustomUserDetailsService;
@@ -15,6 +17,7 @@ import com.phcworld.user.dto.UserRequestDto;
 import com.phcworld.user.dto.UserResponseDto;
 import com.phcworld.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,12 +28,14 @@ import java.time.LocalDateTime;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final CustomUserDetailsService userDetailsService;
 	private final TokenProvider tokenProvider;
+	private final UploadFileService uploadFileService;
 
 	public User registerUser(UserRequestDto requestUser) {
 		boolean isFind = userRepository.findByEmail(requestUser.email())
@@ -73,13 +78,18 @@ public class UserService {
 	}
 
 	public UserResponseDto modifyUserInfo(UserRequestDto requestDto){
-		Long userId = SecurityUtil.getCurrentMemberId();
+        Long userId = SecurityUtil.getCurrentMemberId();
 		if(!userId.equals(requestDto.id())){
 			throw new UnauthorizedException();
 		}
 		User user = userRepository.findById(requestDto.id())
 				.orElseThrow(NotFoundException::new);
 		user.modify(requestDto);
+		uploadFileService.registerFile(
+				userId,
+				requestDto.imageName(),
+				requestDto.imageData(),
+				FileType.USER_PROFILE_IMG);
 		return UserResponseDto.of(user);
 	}
 
@@ -98,5 +108,9 @@ public class UserService {
 				.statusCode(200)
 				.message("삭제 성공")
 				.build();
+	}
+
+	public String logout() {
+		return "로그아웃";
 	}
 }
