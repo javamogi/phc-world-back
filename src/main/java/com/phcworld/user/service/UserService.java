@@ -69,7 +69,7 @@ public class UserService {
 		User user = userRepository.findById(userId)
 				.orElseThrow(NotFoundException::new);
 		String base64ImgData = uploadFileService.getFileData(user.getProfileImage());
-		UserResponseDto userResponseDto = UserResponseDto.builder()
+		return UserResponseDto.builder()
 				.id(user.getId())
 				.email(user.getEmail())
 				.createDate(user.getFormattedCreateDate())
@@ -77,7 +77,6 @@ public class UserService {
 				.profileImage(base64ImgData)
 				.build();
 //		return UserResponseDto.of(user);
-		return userResponseDto;
 	}
 
 	public UserResponseDto getUserInfo(Long userId){
@@ -93,20 +92,23 @@ public class UserService {
 		}
 		User user = userRepository.findById(requestDto.id())
 				.orElseThrow(NotFoundException::new);
-		String profileImg = uploadFileService.registerFile(
-				userId,
-				requestDto.imageName(),
-				requestDto.imageData(),
-				FileType.USER_PROFILE_IMG);
+		String profileImg = user.getProfileImage();
+		if(requestDto.imageName() != null){
+			profileImg = uploadFileService.registerFile(
+					userId,
+					requestDto.imageName(),
+					requestDto.imageData(),
+					FileType.USER_PROFILE_IMG);
+		}
 		user.modify(passwordEncoder.encode(requestDto.password()), requestDto.name(), profileImg);
 		return UserResponseDto.of(user);
 	}
 
 	public SuccessResponseDto deleteUser(Long id) {
 		Long userId = SecurityUtil.getCurrentMemberId();
-		String authorities = SecurityUtil.getAuthorities();
+		Authority authorities = SecurityUtil.getAuthorities();
 
-		if(!userId.equals(id) && !authorities.equals(Authority.ROLE_ADMIN.toString())){
+		if(!userId.equals(id) && authorities != Authority.ROLE_ADMIN){
 			throw new UnauthorizedException();
 		}
 		User user = userRepository.findById(id)
