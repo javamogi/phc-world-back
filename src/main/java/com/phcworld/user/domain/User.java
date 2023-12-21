@@ -1,6 +1,7 @@
 package com.phcworld.user.domain;
 
 import com.phcworld.user.dto.UserRequestDto;
+import com.phcworld.utils.FileConvertUtils;
 import com.phcworld.utils.LocalDateTimeUtils;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,6 +45,10 @@ public class User implements Serializable {
 	
 	public String getFormattedCreateDate() {
 		return LocalDateTimeUtils.getTime(createDate);
+	}
+
+	public String getProfileImageData(){
+		return FileConvertUtils.getFileData(profileImage);
 	}
 
 	@Override
