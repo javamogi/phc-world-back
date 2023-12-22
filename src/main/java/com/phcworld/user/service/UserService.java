@@ -68,15 +68,7 @@ public class UserService {
 		Long userId = SecurityUtil.getCurrentMemberId();
 		User user = userRepository.findById(userId)
 				.orElseThrow(NotFoundException::new);
-		String base64ImgData = uploadFileService.getFileData(user.getProfileImage());
-		return UserResponseDto.builder()
-				.id(user.getId())
-				.email(user.getEmail())
-				.createDate(user.getFormattedCreateDate())
-				.name(user.getName())
-				.profileImage(base64ImgData)
-				.build();
-//		return UserResponseDto.of(user);
+		return UserResponseDto.of(user);
 	}
 
 	public UserResponseDto getUserInfo(Long userId){
