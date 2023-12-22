@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 @EntityListeners(AuditingEntityListener.class)
 @DynamicUpdate
+@DynamicInsert
 @Table(name = "free_board",
 		indexes = {@Index(name = "idx__create_date", columnList = "createDate"),
 				@Index(name = "idx__writer_id_create_date", columnList = "writer_id, createDate")})
@@ -54,9 +56,11 @@ public class FreeBoard {
 	private LocalDateTime updateDate;
 
 	@ColumnDefault("0")
-	private Integer count;
+	@Builder.Default
+	private Integer count = 0;
 
-	private Boolean isDeleted;
+	@ColumnDefault("false")
+	private Boolean isDeleted = false;
 
 //	@OneToMany(mappedBy = "freeBoard", cascade = CascadeType.REMOVE)
 	// @JsonManagedReference
