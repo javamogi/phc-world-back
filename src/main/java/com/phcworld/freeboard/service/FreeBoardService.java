@@ -1,6 +1,7 @@
 package com.phcworld.freeboard.service;
 
 import com.phcworld.common.dto.SuccessResponseDto;
+import com.phcworld.exception.model.DeletedEntityException;
 import com.phcworld.exception.model.NotFoundException;
 import com.phcworld.exception.model.UnauthorizedException;
 import com.phcworld.freeboard.domain.FreeBoard;
@@ -56,6 +57,9 @@ public class FreeBoardService {
 	public FreeBoardResponseDto getFreeBoard(Long id) {
 		FreeBoard freeBoard = freeBoardRepository.findById(id)
 				.orElseThrow(NotFoundException::new);
+		if(freeBoard.getIsDeleted()){
+			throw new DeletedEntityException();
+		}
 		freeBoard.addCount();
 		return FreeBoardResponseDto.of(freeBoard);
 	}
@@ -64,7 +68,9 @@ public class FreeBoardService {
 	public FreeBoardResponseDto updateFreeBoard(FreeBoardRequestDto request) {
 		FreeBoard freeBoard = freeBoardRepository.findById(request.id())
 				.orElseThrow(NotFoundException::new);
-
+		if(freeBoard.getIsDeleted()){
+			throw new DeletedEntityException();
+		}
 		Long userId = SecurityUtil.getCurrentMemberId();
 		Authority authorities = SecurityUtil.getAuthorities();
 
@@ -80,7 +86,9 @@ public class FreeBoardService {
 	public SuccessResponseDto deleteFreeBoard(Long id) {
 		FreeBoard freeBoard = freeBoardRepository.findById(id)
 				.orElseThrow(NotFoundException::new);
-
+		if(freeBoard.getIsDeleted()){
+			throw new DeletedEntityException();
+		}
 		Long userId = SecurityUtil.getCurrentMemberId();
 		Authority authorities = SecurityUtil.getAuthorities();
 

@@ -23,7 +23,6 @@ public class FreeBoardApiController {
     }
 
     @GetMapping("")
-//    public List<FreeBoardResponseDto> getList(@RequestBody FreeBoardSearchDto request){
     public List<FreeBoardResponseDto> getList(FreeBoardSearchDto request){
         return freeBoardService.getSearchList(request);
     }
