@@ -29,7 +29,7 @@ public class UploadFileService {
 
         // 임시 업로드 폴더
         // 추후 aws s3 연동 또는 다른 곳으로
-        String filePath = "src/main/resources/static/";
+        String filePath = "src/main/resources/static/image/";
         File file = new File(filePath + randName);
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(file);

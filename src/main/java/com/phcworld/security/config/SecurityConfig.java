@@ -54,7 +54,8 @@ public class SecurityConfig {
                 )
                 .requestMatchers(
                 "/h2-console/**",
-                "/favicon.ico"
+                "/favicon.ico",
+                        "/image/**"
         );
     }
 

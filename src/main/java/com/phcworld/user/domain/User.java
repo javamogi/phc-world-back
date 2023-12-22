@@ -50,6 +50,9 @@ public class User implements Serializable {
 	public String getProfileImageData(){
 		return FileConvertUtils.getFileData(profileImage);
 	}
+	public String getProfileImageUrl(){
+		return "http://localhost:8080/image/" + profileImage;
+	}
 
 	@Override
 	public boolean equals(Object o) {
