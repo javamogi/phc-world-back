@@ -6,6 +6,7 @@ import com.phcworld.file.domain.UploadFile;
 import com.phcworld.file.repository.UploadFileRepository;
 import com.phcworld.user.dto.UserRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -20,6 +21,9 @@ import java.util.UUID;
 public class UploadFileService {
     private final UploadFileRepository uploadFileRepository;
 
+    @Value("${file.path}")
+    private String filePath;
+
     public String registerFile(Long postId, String imgName, String imgData, FileType fileType) {
         Base64.Decoder decoder = Base64.getDecoder();
         byte[] decodedBytes = decoder.decode(imgData);
@@ -29,7 +33,6 @@ public class UploadFileService {
 
         // 임시 업로드 폴더
         // 추후 aws s3 연동 또는 다른 곳으로
-        String filePath = "src/main/resources/static/image/";
         File file = new File(filePath + randName);
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(file);
@@ -46,9 +49,36 @@ public class UploadFileService {
                 .isDelete(false)
                 .fileType(fileType)
                 .postId(postId)
+                .size(decodedBytes.length)
                 .build();
 
         uploadFileRepository.save(uploadFile);
         return randName;
+    }
+
+    public String registerImages(String contents) {
+        int idx = contents.indexOf("data:image/");
+        while(idx != -1){
+            String img = contents.substring(idx, contents.indexOf("\"", idx));
+            String fileExtension = img.substring(img.indexOf("/") + 1, img.indexOf(";"));
+            String randName = UUID.randomUUID().toString().replace("-", "") + "." + fileExtension;
+            contents = contents.replace(img, "http://localhost:8080/image/" + randName);
+            idx = contents.indexOf("data:image/", idx + 1);
+            String imgData = img.substring(img.indexOf(",") + 1);
+            Base64.Decoder decoder = Base64.getDecoder();
+            byte[] decodedBytes = decoder.decode(imgData);
+            File file = new File(filePath + randName);
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                fileOutputStream.write(decodedBytes);
+                fileOutputStream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
+        return contents;
+
     }
 }

@@ -23,3 +23,6 @@ logging:
   level:
     com.phcworld: debug
     org.springframework.security: debug
+
+file:
+  path: src/main/resources/static/image/
