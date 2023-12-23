@@ -86,9 +86,9 @@ public class FreeBoard {
 		return LocalDateTimeUtils.getTime(updateDate);
 	}
 
-	public void update(FreeBoardRequestDto request) {
-		this.title = request.title();
-		this.contents = request.contents();
+	public void update(String title, String contents) {
+		this.title = title;
+		this.contents = contents;
 	}
 
 	public Boolean isNew(){

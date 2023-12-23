@@ -133,11 +133,14 @@ class FreeBoardApiControllerTest {
 
     @Test
     void 게시글_수정_성공() throws Exception {
+        String contents = FileConvertUtils.getFileData("blank-profile-picture.png");
+        contents = "<p><img src=\"" + contents + "\"></p>";
         FreeBoardRequestDto requestDto = FreeBoardRequestDto.builder()
                 .id(1L)
                 .title("제목")
-                .contents("내용")
+                .contents(contents)
                 .build();
+
         String request = objectMapper.writeValueAsString(requestDto);
         this.mvc.perform(patch("/api/freeboards")
                         .header("Authorization", token)

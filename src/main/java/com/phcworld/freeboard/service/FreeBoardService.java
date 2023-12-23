@@ -75,13 +75,24 @@ public class FreeBoardService {
 		Long userId = SecurityUtil.getCurrentMemberId();
 		Authority authorities = SecurityUtil.getAuthorities();
 		boolean isDeleteAuthority = false;
-		if(!freeBoard.matchUser(userId) || authorities == Authority.ROLE_ADMIN){
+		boolean isModifyAuthority = false;
+//		if(!freeBoard.matchUser(userId) || authorities == Authority.ROLE_ADMIN){
+//			isDeleteAuthority = true;
+//		}
+
+		if(!freeBoard.matchUser(userId)){
+			isModifyAuthority = true;
 			isDeleteAuthority = true;
 		}
+		if(authorities == Authority.ROLE_ADMIN){
+			isDeleteAuthority = true;
+		}
+
 		freeBoard.addCount();
 		Map<String, Object> map = new HashMap<>();
 		map.put("freeboard", FreeBoardResponseDto.of(freeBoard));
 		map.put("isDeleteAuthority", isDeleteAuthority);
+		map.put("isModifyAuthority", isModifyAuthority);
 //		return FreeBoardResponseDto.of(freeBoard);
 		return map;
 	}
@@ -100,7 +111,9 @@ public class FreeBoardService {
 			throw new UnauthorizedException();
 		}
 
-		freeBoard.update(request);
+		String contents = uploadFileService.registerImages(request.contents());
+
+		freeBoard.update(request.title(), contents);
 		return FreeBoardResponseDto.of(freeBoard);
 	}
 

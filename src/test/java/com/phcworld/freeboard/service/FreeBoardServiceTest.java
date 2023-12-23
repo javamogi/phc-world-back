@@ -118,10 +118,7 @@ class FreeBoardServiceTest {
                 .build();
         map.put("freeboard", responseDto);
         map.put("isDeletedAuthrity", false);
-
-//        when(freeBoardService.getFreeBoard(1L)).thenReturn(responseDto);
-//        FreeBoardResponseDto freeBoardResponse = freeBoardService.getFreeBoard(1L);
-//        assertThat(responseDto).isEqualTo(freeBoardResponse);
+        map.put("isModifyAuthrity", false);
 
         when(freeBoardService.getFreeBoard(1L)).thenReturn(map);
         Map<String, Object> result = freeBoardService.getFreeBoard(1L);
