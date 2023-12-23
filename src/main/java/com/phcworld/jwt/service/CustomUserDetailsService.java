@@ -1,6 +1,6 @@
 package com.phcworld.jwt.service;
 
-import com.phcworld.exception.model.DeletedUserException;
+import com.phcworld.exception.model.DeletedEntityException;
 import com.phcworld.exception.model.NotFoundException;
 import com.phcworld.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     // DB 에 User 값이 존재한다면 UserDetails 객체로 만들어서 리턴
     private UserDetails createUserDetails(com.phcworld.user.domain.User user) {
         if(user.getIsDeleted()){
-            throw new DeletedUserException();
+            throw new DeletedEntityException();
         }
         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(user.getAuthority().toString());
         return new User(

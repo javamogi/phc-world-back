@@ -17,7 +17,8 @@ public record UserResponseDto(
                 .email(user.getEmail())
                 .name(user.getName())
                 .createDate(user.getFormattedCreateDate())
-                .profileImage(user.getProfileImageData())
+//                .profileImage(user.getProfileImageData())
+                .profileImage(user.getProfileImageUrl())
                 .build();
     }
 }

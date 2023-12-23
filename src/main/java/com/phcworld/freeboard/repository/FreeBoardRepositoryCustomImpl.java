@@ -38,8 +38,8 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom{
                 .where(
                         findByTitle(searchDto),
                         findContents(searchDto),
-                        findUserName(searchDto))
-//                        freeBoard.isDeleted.isFalse())
+                        findUserName(searchDto),
+                        freeBoard.isDeleted.isFalse())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(orders.toArray(OrderSpecifier[]::new))

@@ -18,7 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -104,6 +106,7 @@ class FreeBoardServiceTest {
 
     @Test
     void 게시글_하나_가져오기(){
+        Map<String, Object> map = new HashMap<>();
         FreeBoardResponseDto responseDto = FreeBoardResponseDto.builder()
                 .id(1L)
                 .writer(UserResponseDto.of(user))
@@ -113,10 +116,13 @@ class FreeBoardServiceTest {
                 .count(1)
                 .isNew(true)
                 .build();
+        map.put("freeboard", responseDto);
+        map.put("isDeletedAuthrity", false);
+        map.put("isModifyAuthrity", false);
 
-        when(freeBoardService.getFreeBoard(1L)).thenReturn(responseDto);
-        FreeBoardResponseDto freeBoardResponse = freeBoardService.getFreeBoard(1L);
-        assertThat(responseDto).isEqualTo(freeBoardResponse);
+        when(freeBoardService.getFreeBoard(1L)).thenReturn(map);
+        Map<String, Object> result = freeBoardService.getFreeBoard(1L);
+        assertThat(result).isEqualTo(map);
     }
 
     @Test

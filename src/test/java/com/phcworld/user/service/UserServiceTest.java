@@ -1,23 +1,20 @@
 package com.phcworld.user.service;
 
 import com.phcworld.common.dto.SuccessResponseDto;
-import com.phcworld.exception.model.DeletedUserException;
+import com.phcworld.exception.model.DeletedEntityException;
 import com.phcworld.exception.model.DuplicationException;
 import com.phcworld.exception.model.NotFoundException;
 import com.phcworld.exception.model.UnauthorizedException;
-import com.phcworld.jwt.TokenProvider;
 import com.phcworld.jwt.dto.TokenDto;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.domain.User;
 import com.phcworld.user.dto.LoginUserRequestDto;
 import com.phcworld.user.dto.UserRequestDto;
 import com.phcworld.user.dto.UserResponseDto;
-import io.netty.handler.codec.base64.Base64Encoder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 
@@ -101,8 +98,8 @@ class UserServiceTest {
                 .email("test@test.test")
                 .password("test1")
                 .build();
-        when(userService.tokenLogin(requestDto)).thenThrow(DeletedUserException.class);
-        Assertions.assertThrows(DeletedUserException.class, () -> {
+        when(userService.tokenLogin(requestDto)).thenThrow(DeletedEntityException.class);
+        Assertions.assertThrows(DeletedEntityException.class, () -> {
             userService.tokenLogin(requestDto);
         });
     }

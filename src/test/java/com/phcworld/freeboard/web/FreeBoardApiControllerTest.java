@@ -5,6 +5,7 @@ import com.phcworld.freeboard.dto.FreeBoardRequestDto;
 import com.phcworld.freeboard.dto.FreeBoardSearchDto;
 import com.phcworld.jwt.TokenProvider;
 import com.phcworld.user.domain.Authority;
+import com.phcworld.utils.FileConvertUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,6 +78,27 @@ class FreeBoardApiControllerTest {
     }
 
     @Test
+    void 게시글_등록_성공_이미지_첨부() throws Exception {
+        String contents = FileConvertUtils.getFileData("blank-profile-picture.png");
+        contents = "<p><img src=\"" + contents + "\"></p>";
+        String contents2 = FileConvertUtils.getFileData("PHC-WORLD.png");
+        contents2 = "<p><img src=\"" + contents2 + "\"></p>";
+        FreeBoardRequestDto requestDto = FreeBoardRequestDto.builder()
+                .title("title")
+                .contents(contents + contents2)
+                .build();
+        String request = objectMapper.writeValueAsString(requestDto);
+
+        this.mvc.perform(post("/api/freeboards")
+                        .header("Authorization", token)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void 게시글_목록_조회() throws Exception {
 
         this.mvc.perform(get("/api/freeboards")
@@ -111,11 +133,14 @@ class FreeBoardApiControllerTest {
 
     @Test
     void 게시글_수정_성공() throws Exception {
+        String contents = FileConvertUtils.getFileData("blank-profile-picture.png");
+        contents = "<p><img src=\"" + contents + "\"></p>";
         FreeBoardRequestDto requestDto = FreeBoardRequestDto.builder()
                 .id(1L)
                 .title("제목")
-                .contents("내용")
+                .contents(contents)
                 .build();
+
         String request = objectMapper.writeValueAsString(requestDto);
         this.mvc.perform(patch("/api/freeboards")
                         .header("Authorization", token)

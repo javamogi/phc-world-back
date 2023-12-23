@@ -26,4 +26,6 @@ public class UploadFile {
     private FileType fileType;
 
     private Long postId;
+
+    private Integer size;
 }
