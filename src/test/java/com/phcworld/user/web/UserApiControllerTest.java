@@ -403,4 +403,22 @@ class UserApiControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void 새로운_토큰_발행() throws Exception {
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(new String[]{Authority.ROLE_USER.toString()})
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+        UserDetails principal = new org.springframework.security.core.userdetails.User("2", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        long now = (new Date()).getTime();
+        String refreshToken = tokenProvider.generateRefreshToken(authentication, now);
+
+        this.mvc.perform(get("/api/users/newToken")
+                        .with(csrf())
+                        .header("Authorization", "Bearer " + refreshToken))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 }
