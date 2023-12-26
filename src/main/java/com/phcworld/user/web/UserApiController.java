@@ -55,4 +55,9 @@ public class UserApiController {
     public String logout(){
         return userService.logout();
     }
+
+    @GetMapping("/newToken")
+    public TokenDto getToken(){
+        return userService.getNewToken();
+    }
 }
