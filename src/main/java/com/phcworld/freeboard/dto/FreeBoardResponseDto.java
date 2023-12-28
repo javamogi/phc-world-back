@@ -1,8 +1,12 @@
 package com.phcworld.freeboard.dto;
 
+import com.phcworld.answer.dto.FreeBoardAnswerResponseDto;
 import com.phcworld.freeboard.domain.FreeBoard;
 import com.phcworld.user.dto.UserResponseDto;
 import lombok.Builder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 public record FreeBoardResponseDto(
@@ -12,8 +16,9 @@ public record FreeBoardResponseDto(
         String contents,
         String createDate,
         Integer count,
-//        String countOfAnswer,
-        Boolean isNew
+        String countOfAnswer,
+        Boolean isNew,
+        List<FreeBoardAnswerResponseDto> answers
 ) {
     public static FreeBoardResponseDto of(FreeBoard freeBoard){
         return FreeBoardResponseDto.builder()
@@ -23,8 +28,15 @@ public record FreeBoardResponseDto(
                 .contents(freeBoard.getContents())
                 .createDate(freeBoard.getFormattedCreateDate())
                 .count(freeBoard.getCount())
-//				.countOfAnswer(freeBoard.getCountOfAnswer())
+				.countOfAnswer(freeBoard.getCountOfAnswer())
                 .isNew(freeBoard.isNew())
+                .answers(freeBoard.getFreeBoardAnswers() != null ?
+                        freeBoard.getFreeBoardAnswers()
+                        .stream()
+                        .map(FreeBoardAnswerResponseDto::of)
+                        .toList()
+                        :
+                        new ArrayList<>())
                 .build();
     }
     public static FreeBoardResponseDto of(FreeBoardSelectDto freeBoard){
@@ -35,7 +47,10 @@ public record FreeBoardResponseDto(
                 .contents(freeBoard.getContents())
                 .createDate(freeBoard.getFormattedCreateDate())
                 .count(freeBoard.getCount())
-//                .countOfAnswer(freeBoard.countOfAnswer().toString())
+                .countOfAnswer(freeBoard.getCountOfAnswer() != null ?
+                        freeBoard.getCountOfAnswer().toString()
+                        :
+                        "0")
                 .isNew(freeBoard.isNew())
                 .build();
     }

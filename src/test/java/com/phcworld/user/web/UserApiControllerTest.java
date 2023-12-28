@@ -17,6 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class UserApiControllerTest {
 
     @Autowired
@@ -291,7 +293,7 @@ class UserApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
 
-        File file = new File("src/main/resources/static/PHC-WORLD.png");
+        File file = new File("src/main/resources/static/image/PHC-WORLD.png");
         byte[] bytesFile = Files.readAllBytes(file.toPath());
         String imgData = Base64.getEncoder().encodeToString(bytesFile);
 

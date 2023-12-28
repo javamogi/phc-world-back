@@ -156,7 +156,7 @@ class UserServiceTest {
 
     @Test
     void 회원_정보_변경_성공() throws IOException {
-        File file = new File("src/main/resources/static/PHC-WORLD.png");
+        File file = new File("src/main/resources/static/image/PHC-WORLD.png");
         byte[] bytesFile = Files.readAllBytes(file.toPath());
         String imgData = Base64.getEncoder().encodeToString(bytesFile);
 

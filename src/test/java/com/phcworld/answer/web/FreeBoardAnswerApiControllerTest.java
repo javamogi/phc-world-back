@@ -1,11 +1,10 @@
-package com.phcworld.freeboard.web;
+package com.phcworld.answer.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phcworld.answer.dto.FreeBoardAnswerRequestDto;
 import com.phcworld.freeboard.dto.FreeBoardRequestDto;
-import com.phcworld.freeboard.dto.FreeBoardSearchDto;
 import com.phcworld.jwt.TokenProvider;
 import com.phcworld.user.domain.Authority;
-import com.phcworld.utils.FileConvertUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -35,14 +35,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class FreeBoardApiControllerTest {
+class FreeBoardAnswerApiControllerTest {
 
     @Autowired
     private MockMvc mvc;
 
     @SpyBean
     private TokenProvider tokenProvider;
-
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -63,61 +62,43 @@ class FreeBoardApiControllerTest {
     }
 
     @Test
-    void 게시글_등록_성공() throws Exception {
-        FreeBoardRequestDto requestDto = FreeBoardRequestDto.builder()
-                .title("title")
+    void 답변_등록_성공() throws Exception {
+        FreeBoardAnswerRequestDto requestDto = FreeBoardAnswerRequestDto.builder()
+                .boardId(1L)
                 .contents("contents")
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
-        this.mvc.perform(post("/api/freeboards")
+        this.mvc.perform(post("/api/freeboards/answers")
                         .header("Authorization", token)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test
-    void 게시글_등록_성공_이미지_첨부() throws Exception {
-        String contents = FileConvertUtils.getFileData("blank-profile-picture.png");
-        contents = "<p><img src=\"" + contents + "\"></p>";
-        String contents2 = FileConvertUtils.getFileData("PHC-WORLD.png");
-        contents2 = "<p><img src=\"" + contents2 + "\"></p>";
-        FreeBoardRequestDto requestDto = FreeBoardRequestDto.builder()
-                .title("title")
-                .contents(contents + contents2)
+    void 답변_등록_실패_없는_게시물() throws Exception {
+        FreeBoardAnswerRequestDto requestDto = FreeBoardAnswerRequestDto.builder()
+                .boardId(1000L)
+                .contents("contents")
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
-        this.mvc.perform(post("/api/freeboards")
+        this.mvc.perform(post("/api/freeboards/answers")
                         .header("Authorization", token)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void 게시글_목록_조회() throws Exception {
+    void 답변_하나_조회() throws Exception {
 
-        this.mvc.perform(get("/api/freeboards")
-                        .header("Authorization", token)
-                        .with(csrf())
-                        .param("pageNum", "1")
-                        .param("pageSize", "10")
-                        .param("searchType", "0")
-                        .param("keyword", ""))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void 게시글_하나_조회() throws Exception {
-
-        this.mvc.perform(get("/api/freeboards/{freeBoardId}", 1L)
+        this.mvc.perform(get("/api/freeboards/answers/{id}", 1L)
                         .header("Authorization", token)
                         .with(csrf()))
                 .andDo(print())
@@ -125,8 +106,9 @@ class FreeBoardApiControllerTest {
     }
 
     @Test
-    void 게시글_하나_조회_데이터_없음() throws Exception {
-        this.mvc.perform(get("/api/freeboards/{freeBoardId}", 999L)
+    void 답변_하나_조회_없는_답변() throws Exception {
+
+        this.mvc.perform(get("/api/freeboards/answers/{id}", 2L)
                         .header("Authorization", token)
                         .with(csrf()))
                 .andDo(print())
@@ -134,17 +116,14 @@ class FreeBoardApiControllerTest {
     }
 
     @Test
-    void 게시글_수정_성공() throws Exception {
-        String contents = FileConvertUtils.getFileData("blank-profile-picture.png");
-        contents = "<p><img src=\"" + contents + "\"></p>";
-        FreeBoardRequestDto requestDto = FreeBoardRequestDto.builder()
-                .id(1L)
-                .title("제목")
-                .contents(contents)
+    void 답변_수정_성공() throws Exception {
+        FreeBoardAnswerRequestDto requestDto = FreeBoardAnswerRequestDto.builder()
+                .answerId(1L)
+                .contents("contents 수정")
                 .build();
-
         String request = objectMapper.writeValueAsString(requestDto);
-        this.mvc.perform(patch("/api/freeboards")
+
+        this.mvc.perform(patch("/api/freeboards/answers")
                         .header("Authorization", token)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -154,14 +133,24 @@ class FreeBoardApiControllerTest {
     }
 
     @Test
-    void 게시글_수정_실패_권한_없음() throws Exception {
-        FreeBoardRequestDto requestDto = FreeBoardRequestDto.builder()
-                .id(1L)
-                .title("제목")
-                .contents("내용")
+    void 답변_수정_실패_없는_답변() throws Exception {
+        FreeBoardAnswerRequestDto requestDto = FreeBoardAnswerRequestDto.builder()
+                .answerId(2L)
+                .contents("contents 수정")
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
+        this.mvc.perform(patch("/api/freeboards/answers")
+                        .header("Authorization", token)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void 답변_수정_실패_수정_권한_없음() throws Exception {
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(new String[]{Authority.ROLE_USER.toString()})
                         .map(SimpleGrantedAuthority::new)
@@ -171,7 +160,13 @@ class FreeBoardApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = "Bearer " + tokenProvider.generateAccessToken(authentication, now);
 
-        this.mvc.perform(patch("/api/freeboards")
+        FreeBoardAnswerRequestDto requestDto = FreeBoardAnswerRequestDto.builder()
+                .answerId(1L)
+                .contents("contents 수정")
+                .build();
+        String request = objectMapper.writeValueAsString(requestDto);
+
+        this.mvc.perform(patch("/api/freeboards/answers")
                         .header("Authorization", accessToken)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -181,8 +176,8 @@ class FreeBoardApiControllerTest {
     }
 
     @Test
-    void 게시글_삭제_성공() throws Exception {
-        this.mvc.perform(delete("/api/freeboards/{freeBoardId}", 1L)
+    void 답변_삭제_성공() throws Exception {
+        this.mvc.perform(delete("/api/freeboards/answers/{id}", 1L)
                         .header("Authorization", token)
                         .with(csrf()))
                 .andDo(print())
@@ -190,7 +185,16 @@ class FreeBoardApiControllerTest {
     }
 
     @Test
-    void 게시글_삭제_실패_권한_없음() throws Exception {
+    void 답변_삭제_실패_없는_답변() throws Exception {
+        this.mvc.perform(delete("/api/freeboards/answers/{id}", 2L)
+                        .header("Authorization", token)
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void 답변_삭제_실패_권한_없음() throws Exception {
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(new String[]{Authority.ROLE_USER.toString()})
                         .map(SimpleGrantedAuthority::new)
@@ -200,7 +204,7 @@ class FreeBoardApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = "Bearer " + tokenProvider.generateAccessToken(authentication, now);
 
-        this.mvc.perform(delete("/api/freeboards/{freeBoardId}", 1L)
+        this.mvc.perform(delete("/api/freeboards/answers/{id}", 1L)
                         .header("Authorization", accessToken)
                         .with(csrf()))
                 .andDo(print())
