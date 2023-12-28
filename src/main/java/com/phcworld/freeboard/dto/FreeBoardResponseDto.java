@@ -16,7 +16,7 @@ public record FreeBoardResponseDto(
         String contents,
         String createDate,
         Integer count,
-        String countOfAnswer,
+        Integer countOfAnswer,
         Boolean isNew,
         List<FreeBoardAnswerResponseDto> answers
 ) {
@@ -30,13 +30,10 @@ public record FreeBoardResponseDto(
                 .count(freeBoard.getCount())
 				.countOfAnswer(freeBoard.getCountOfAnswer())
                 .isNew(freeBoard.isNew())
-                .answers(freeBoard.getFreeBoardAnswers() != null ?
-                        freeBoard.getFreeBoardAnswers()
+                .answers(freeBoard.getFreeBoardAnswers()
                         .stream()
                         .map(FreeBoardAnswerResponseDto::of)
-                        .toList()
-                        :
-                        new ArrayList<>())
+                        .toList())
                 .build();
     }
     public static FreeBoardResponseDto of(FreeBoardSelectDto freeBoard){
@@ -47,10 +44,7 @@ public record FreeBoardResponseDto(
                 .contents(freeBoard.getContents())
                 .createDate(freeBoard.getFormattedCreateDate())
                 .count(freeBoard.getCount())
-                .countOfAnswer(freeBoard.getCountOfAnswer() != null ?
-                        freeBoard.getCountOfAnswer().toString()
-                        :
-                        "0")
+                .countOfAnswer(freeBoard.getCountOfAnswer())
                 .isNew(freeBoard.isNew())
                 .build();
     }

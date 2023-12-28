@@ -40,4 +40,11 @@ public class FreeBoardSelectDto {
         return (createdDateAndNowDifferenceMinutes / MINUTES_OF_HOUR) < HOUR_OF_DAY;
     }
 
+    public Integer getCountOfAnswer(){
+        if(countOfAnswer == null){
+            return 0;
+        }
+        return countOfAnswer.intValue();
+    }
+
 }
