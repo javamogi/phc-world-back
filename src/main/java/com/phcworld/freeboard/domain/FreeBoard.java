@@ -1,5 +1,6 @@
 package com.phcworld.freeboard.domain;
 
+import com.phcworld.answer.domain.FreeBoardAnswer;
 import com.phcworld.freeboard.dto.FreeBoardRequestDto;
 import com.phcworld.user.domain.User;
 import com.phcworld.utils.LocalDateTimeUtils;
@@ -15,6 +16,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -62,17 +64,15 @@ public class FreeBoard {
 	@ColumnDefault("false")
 	private Boolean isDeleted = false;
 
-//	@OneToMany(mappedBy = "freeBoard", cascade = CascadeType.REMOVE)
-	// @JsonManagedReference
-//	@JsonBackReference
-//	private List<FreeBoardAnswer> freeBoardAnswers;
+	@OneToMany(mappedBy = "freeBoard", cascade = CascadeType.REMOVE)
+	private List<FreeBoardAnswer> freeBoardAnswers;
 
-//	public String getCountOfAnswer() {
-//		if (this.freeBoardAnswers == null|| this.freeBoardAnswers.size() == 0) {
-//			return "";
-//		}
-//		return "[" + freeBoardAnswers.size() + "]";
-//	}
+	public String getCountOfAnswer() {
+		if (this.freeBoardAnswers == null|| this.freeBoardAnswers.size() == 0) {
+			return "";
+		}
+		return "[" + freeBoardAnswers.size() + "]";
+	}
 
 	public void addCount() {
 		this.count += 1;

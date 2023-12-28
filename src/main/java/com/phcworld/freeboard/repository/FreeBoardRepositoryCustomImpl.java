@@ -1,14 +1,17 @@
 package com.phcworld.freeboard.repository;
 
+import com.phcworld.answer.domain.QFreeBoardAnswer;
 import com.phcworld.freeboard.domain.QFreeBoard;
 import com.phcworld.freeboard.dto.FreeBoardSearchDto;
 import com.phcworld.freeboard.dto.FreeBoardSelectDto;
 import com.phcworld.user.domain.QUser;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +28,7 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom{
     private final JPAQueryFactory queryFactory;
     QFreeBoard freeBoard = QFreeBoard.freeBoard;
     QUser user = QUser.user;
-//    QFreeBoardAnswer answer = QFreeBoardAnswer.freeBoardAnswer;
+    QFreeBoardAnswer answer = QFreeBoardAnswer.freeBoardAnswer;
 
     @Override
     public List<FreeBoardSelectDto> findByKeyword(FreeBoardSearchDto searchDto, Pageable pageable){
@@ -53,12 +56,12 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom{
                         freeBoard.contents,
                         freeBoard.createDate,
                         freeBoard.updateDate,
-                        freeBoard.count))
-//                        ExpressionUtils.as(
-//                                JPAExpressions
-//                                        .select(answer.count())
-//                                        .from(answer)
-//                                        .where(answer.writer.eq(user)), "countOfAnswer")))
+                        freeBoard.count,
+                        ExpressionUtils.as(
+                                JPAExpressions
+                                        .select(answer.count())
+                                        .from(answer)
+                                        .where(answer.writer.eq(user)), "countOfAnswer")))
                 .from(freeBoard)
                 .leftJoin(freeBoard.writer, user)
                 .where(freeBoard.id.in(ids))
