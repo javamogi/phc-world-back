@@ -96,7 +96,8 @@ class FreeBoardServiceTest {
         list.add(freeboard1);
         list.add(freeboard2);
 
-        when(freeBoardService.getSearchList(searchDto)).thenReturn(list.stream()
+        when(freeBoardService.getSearchList(searchDto)).thenReturn(
+                list.stream()
                 .map(FreeBoardResponseDto::of)
                 .toList());
         List<FreeBoardResponseDto> result = freeBoardService.getSearchList(searchDto);
@@ -182,9 +183,9 @@ class FreeBoardServiceTest {
 
     @Test
     void 게시글_삭제_실패_게시글_없음(){
-        when(freeBoardService.deleteFreeBoard(1L)).thenThrow(NotFoundException.class);
+        when(freeBoardService.deleteFreeBoard(100L)).thenThrow(NotFoundException.class);
         Assertions.assertThrows(NotFoundException.class, () -> {
-            freeBoardService.deleteFreeBoard(1L);
+            freeBoardService.deleteFreeBoard(100L);
         });
     }
 

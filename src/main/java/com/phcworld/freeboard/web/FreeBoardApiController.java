@@ -31,9 +31,7 @@ public class FreeBoardApiController {
     }
 
     @GetMapping("/{freeBoardId}")
-//    public FreeBoardResponseDto getFreeBoard(@PathVariable(name = "freeBoardId") Long freeBoardId){
     public ResponseEntity<Map<String, Object>> getFreeBoard(@PathVariable(name = "freeBoardId") Long freeBoardId){
-//        return freeBoardService.getFreeBoard(freeBoardId);
         Map<String, Object> result = freeBoardService.getFreeBoard(freeBoardId);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
