@@ -16,6 +16,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -67,11 +68,18 @@ public class FreeBoard {
 	@OneToMany(mappedBy = "freeBoard", cascade = CascadeType.REMOVE)
 	private List<FreeBoardAnswer> freeBoardAnswers;
 
-	public String getCountOfAnswer() {
-		if (this.freeBoardAnswers == null|| this.freeBoardAnswers.size() == 0) {
-			return "";
+//	public String getCountOfAnswer() {
+//		if (this.freeBoardAnswers == null|| this.freeBoardAnswers.size() == 0) {
+//			return "";
+//		}
+//		return "[" + freeBoardAnswers.size() + "]";
+//	}
+
+	public Integer getCountOfAnswer() {
+		if (this.freeBoardAnswers == null) {
+			return 0;
 		}
-		return "[" + freeBoardAnswers.size() + "]";
+		return freeBoardAnswers.size();
 	}
 
 	public void addCount() {
@@ -106,5 +114,12 @@ public class FreeBoard {
 
 	public void delete() {
 		this.isDeleted = true;
+	}
+
+	public List<FreeBoardAnswer> getFreeBoardAnswers() {
+		if(freeBoardAnswers == null){
+			return new ArrayList<>();
+		}
+		return freeBoardAnswers;
 	}
 }
