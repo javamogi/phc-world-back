@@ -10,7 +10,6 @@ public record FreeBoardAnswerResponseDto(
         Long id,
         UserResponseDto writer,
         String contents,
-        String countOfAnswers,
         String updatedDate
 ) {
     public static FreeBoardAnswerResponseDto of(FreeBoardAnswer freeBoardAnswer) {
