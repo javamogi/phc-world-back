@@ -2,6 +2,7 @@ package com.phcworld.jwt.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phcworld.exception.model.CustomBaseException;
+import com.phcworld.exception.model.ErrorCode;
 import com.phcworld.jwt.TokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,7 +27,9 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (CustomBaseException e){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            ErrorCode error = e.getErrorCode();
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(error.getHttpStatus().value());
             response.setCharacterEncoding("utf-8");
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             String errorMessage = objectMapper.writeValueAsString(e.getErrorCode().getMessage());
