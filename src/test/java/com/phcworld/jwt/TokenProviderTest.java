@@ -1,5 +1,6 @@
 package com.phcworld.jwt;
 
+import com.phcworld.exception.model.BadRequestException;
 import com.phcworld.exception.model.UnauthorizedException;
 import com.phcworld.jwt.dto.TokenDto;
 import com.phcworld.user.domain.Authority;
@@ -88,7 +89,7 @@ class TokenProviderTest {
         long now = (new Date()).getTime();
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
         String finalAccessToken = accessToken.replace(".", "");
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
+        Assertions.assertThrows(BadRequestException.class, () -> {
             tokenProvider.validateToken(finalAccessToken);
         });
     }
