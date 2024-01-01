@@ -69,6 +69,8 @@ public class SecurityConfig {
                                 .requestMatchers("/",
                                         "/api/users",
                                         "/api/users/login").permitAll()
+                                .requestMatchers("/hello",
+                                        "/microservice-hello").permitAll()
                                 .anyRequest().authenticated()
                 )
                 // enable h2-console
