@@ -61,7 +61,7 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom{
                                 JPAExpressions
                                         .select(answer.count())
                                         .from(answer)
-                                        .where(answer.writer.eq(user)), "countOfAnswer")))
+                                        .where(answer.freeBoard.eq(freeBoard)), "countOfAnswer")))
                 .from(freeBoard)
                 .leftJoin(freeBoard.writer, user)
                 .where(freeBoard.id.in(ids))
