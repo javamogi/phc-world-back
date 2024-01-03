@@ -14,7 +14,7 @@ import org.springframework.web.servlet.function.EntityResponse;
 
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
 public class UserApiController {
