@@ -27,6 +27,7 @@ repositories {
 
 ext {
     set('snippetsDir', file("build/generated-snippets"))
+    set('springCloudVersion', "2023.0.0")
 }
 
 dependencies {
@@ -54,6 +55,18 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // eureka-client
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 tasks.named('test') {
@@ -75,6 +88,7 @@ sourceSets {
 
 tasks.withType(JavaCompile){
     options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+    options.encoding = "UTF-8"
 }
 
 clean.doLast {

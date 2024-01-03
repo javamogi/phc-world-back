@@ -5,11 +5,9 @@ import com.phcworld.jwt.config.JwtSecurityConfig;
 import com.phcworld.jwt.entry.JwtAuthenticationEntryPoint;
 import com.phcworld.jwt.filter.JwtExceptionFilter;
 import com.phcworld.jwt.handler.JwtAccessDeniedHandler;
-import com.phcworld.jwt.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -67,8 +65,8 @@ public class SecurityConfig {
                 .authorizeRequests((authorizeRequestsConfig) ->
                         authorizeRequestsConfig
                                 .requestMatchers("/",
-                                        "/api/users",
-                                        "/api/users/login").permitAll()
+                                        "/users",
+                                        "/users/login").permitAll()
                                 .requestMatchers("/hello",
                                         "/microservice-hello").permitAll()
                                 .anyRequest().authenticated()
