@@ -1,36 +1,30 @@
 package com.phcworld.user.service;
 
 import com.phcworld.common.dto.SuccessResponseDto;
-import com.phcworld.exception.model.DuplicationException;
-import com.phcworld.exception.model.NotFoundException;
-import com.phcworld.exception.model.UnauthorizedException;
+import com.phcworld.common.exception.model.DuplicationException;
+import com.phcworld.common.exception.model.NotFoundException;
+import com.phcworld.common.exception.model.UnauthorizedException;
 import com.phcworld.file.domain.FileType;
 import com.phcworld.file.service.UploadFileService;
-import com.phcworld.jwt.TokenProvider;
-import com.phcworld.jwt.dto.TokenDto;
-import com.phcworld.jwt.service.CustomUserDetailsService;
-import com.phcworld.security.utils.SecurityUtil;
+import com.phcworld.common.jwt.TokenProvider;
+import com.phcworld.common.jwt.dto.TokenDto;
+import com.phcworld.common.jwt.service.CustomUserDetailsService;
+import com.phcworld.common.security.utils.SecurityUtil;
 import com.phcworld.user.domain.Authority;
-import com.phcworld.user.domain.User;
-import com.phcworld.user.dto.LoginUserRequestDto;
-import com.phcworld.user.dto.UserRequestDto;
-import com.phcworld.user.dto.UserResponseDto;
-import com.phcworld.user.repository.UserRepository;
+import com.phcworld.user.infrastructure.UserEntity;
+import com.phcworld.user.domain.dto.LoginRequest;
+import com.phcworld.user.domain.dto.UserRequest;
+import com.phcworld.user.domain.dto.UserResponse;
+import com.phcworld.user.infrastructure.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collection;
 
 @Service
 @Transactional
@@ -38,20 +32,20 @@ import java.util.Collection;
 @Slf4j
 public class UserService {
 
-	private final UserRepository userRepository;
+	private final UserJpaRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final CustomUserDetailsService userDetailsService;
 	private final TokenProvider tokenProvider;
 	private final UploadFileService uploadFileService;
 
-	public User registerUser(UserRequestDto requestUser) {
+	public UserEntity registerUser(UserRequest requestUser) {
 		boolean isFind = userRepository.findByEmail(requestUser.email())
 				.isPresent();
 		if(isFind){
 			throw new DuplicationException();
 		}
 
-		User user = User.builder()
+		UserEntity user = UserEntity.builder()
 				.email(requestUser.email())
 				.name(requestUser.name())
 				.password(passwordEncoder.encode(requestUser.password()))
@@ -63,7 +57,7 @@ public class UserService {
 		return userRepository.save(user);
 	}
 
-	public TokenDto tokenLogin(LoginUserRequestDto requestUser) {
+	public TokenDto tokenLogin(LoginRequest requestUser) {
 		// 비밀번호 확인 + spring security 객체 생성 후 JWT 토큰 생성
 		Authentication authentication = SecurityUtil.getAuthentication(requestUser, userDetailsService, passwordEncoder);
 
@@ -71,25 +65,25 @@ public class UserService {
 		return tokenProvider.generateTokenDto(authentication);
 	}
 
-	public UserResponseDto getLoginUserInfo(){
+	public UserResponse getLoginUserInfo(){
 		Long userId = SecurityUtil.getCurrentMemberId();
-		User user = userRepository.findById(userId)
+		UserEntity user = userRepository.findById(userId)
 				.orElseThrow(NotFoundException::new);
-		return UserResponseDto.of(user);
+		return UserResponse.of(user);
 	}
 
-	public UserResponseDto getUserInfo(Long userId){
-		User user = userRepository.findById(userId)
+	public UserResponse getUserInfo(Long userId){
+		UserEntity user = userRepository.findById(userId)
 				.orElseThrow(NotFoundException::new);
-		return UserResponseDto.of(user);
+		return UserResponse.of(user);
 	}
 
-	public UserResponseDto modifyUserInfo(UserRequestDto requestDto){
+	public UserResponse modifyUserInfo(UserRequest requestDto){
         Long userId = SecurityUtil.getCurrentMemberId();
 		if(!userId.equals(requestDto.id())){
 			throw new UnauthorizedException();
 		}
-		User user = userRepository.findById(requestDto.id())
+		UserEntity user = userRepository.findById(requestDto.id())
 				.orElseThrow(NotFoundException::new);
 		String profileImg = user.getProfileImage();
 		if(requestDto.imageName() != null){
@@ -100,7 +94,7 @@ public class UserService {
 					FileType.USER_PROFILE_IMG);
 		}
 		user.modify(passwordEncoder.encode(requestDto.password()), requestDto.name(), profileImg);
-		return UserResponseDto.of(user);
+		return UserResponse.of(user);
 	}
 
 	public SuccessResponseDto deleteUser(Long id) {
@@ -110,7 +104,7 @@ public class UserService {
 		if(!userId.equals(id) && authorities != Authority.ROLE_ADMIN){
 			throw new UnauthorizedException();
 		}
-		User user = userRepository.findById(id)
+		UserEntity user = userRepository.findById(id)
 				.orElseThrow(NotFoundException::new);
 		user.delete();
 

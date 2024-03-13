@@ -2,8 +2,7 @@ package com.phcworld.answer.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phcworld.answer.dto.FreeBoardAnswerRequestDto;
-import com.phcworld.freeboard.dto.FreeBoardRequestDto;
-import com.phcworld.jwt.TokenProvider;
+import com.phcworld.common.jwt.TokenProvider;
 import com.phcworld.user.domain.Authority;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;

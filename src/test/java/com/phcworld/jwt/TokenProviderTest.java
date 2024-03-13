@@ -1,8 +1,9 @@
 package com.phcworld.jwt;
 
-import com.phcworld.exception.model.BadRequestException;
-import com.phcworld.exception.model.UnauthorizedException;
-import com.phcworld.jwt.dto.TokenDto;
+import com.phcworld.common.exception.model.BadRequestException;
+import com.phcworld.common.exception.model.UnauthorizedException;
+import com.phcworld.common.jwt.TokenProvider;
+import com.phcworld.common.jwt.dto.TokenDto;
 import com.phcworld.user.domain.Authority;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;

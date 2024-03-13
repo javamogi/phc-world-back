@@ -1,29 +1,24 @@
 package com.phcworld.freeboard.service;
 
 import com.phcworld.common.dto.SuccessResponseDto;
-import com.phcworld.exception.model.DeletedEntityException;
-import com.phcworld.exception.model.NotFoundException;
-import com.phcworld.exception.model.UnauthorizedException;
-import com.phcworld.file.domain.UploadFile;
+import com.phcworld.common.exception.model.DeletedEntityException;
+import com.phcworld.common.exception.model.NotFoundException;
+import com.phcworld.common.exception.model.UnauthorizedException;
 import com.phcworld.file.service.UploadFileService;
 import com.phcworld.freeboard.domain.FreeBoard;
 import com.phcworld.freeboard.dto.*;
 import com.phcworld.freeboard.repository.FreeBoardRepository;
-import com.phcworld.security.utils.SecurityUtil;
+import com.phcworld.common.security.utils.SecurityUtil;
 import com.phcworld.user.domain.Authority;
-import com.phcworld.user.domain.User;
-import com.phcworld.user.repository.UserRepository;
+import com.phcworld.user.infrastructure.UserEntity;
+import com.phcworld.user.infrastructure.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.function.EntityResponse;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -31,7 +26,7 @@ import java.util.*;
 @Slf4j
 public class FreeBoardService {
 	private final FreeBoardRepository freeBoardRepository;
-	private final UserRepository userRepository;
+	private final UserJpaRepository userRepository;
 	private final UploadFileService uploadFileService;
 
 //	private final TimelineServiceImpl timelineService;
@@ -41,7 +36,7 @@ public class FreeBoardService {
 	@Transactional
 	public FreeBoardResponseDto registerFreeBoard(FreeBoardRequestDto request) {
 		Long userId = SecurityUtil.getCurrentMemberId();
-		User user = userRepository.findById(userId)
+		UserEntity user = userRepository.findById(userId)
 				.orElseThrow(NotFoundException::new);
 
 		String contents = uploadFileService.registerImages(request.contents());

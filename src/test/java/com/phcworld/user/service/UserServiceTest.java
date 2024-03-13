@@ -1,16 +1,16 @@
 package com.phcworld.user.service;
 
 import com.phcworld.common.dto.SuccessResponseDto;
-import com.phcworld.exception.model.DeletedEntityException;
-import com.phcworld.exception.model.DuplicationException;
-import com.phcworld.exception.model.NotFoundException;
-import com.phcworld.exception.model.UnauthorizedException;
-import com.phcworld.jwt.dto.TokenDto;
+import com.phcworld.common.exception.model.DeletedEntityException;
+import com.phcworld.common.exception.model.DuplicationException;
+import com.phcworld.common.exception.model.NotFoundException;
+import com.phcworld.common.exception.model.UnauthorizedException;
+import com.phcworld.common.jwt.dto.TokenDto;
 import com.phcworld.user.domain.Authority;
-import com.phcworld.user.domain.User;
-import com.phcworld.user.dto.LoginUserRequestDto;
-import com.phcworld.user.dto.UserRequestDto;
-import com.phcworld.user.dto.UserResponseDto;
+import com.phcworld.user.infrastructure.UserEntity;
+import com.phcworld.user.domain.dto.LoginRequest;
+import com.phcworld.user.domain.dto.UserRequest;
+import com.phcworld.user.domain.dto.UserResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,13 +35,13 @@ class UserServiceTest {
 
     @Test
     void 회원가입() {
-        UserRequestDto requestDto = UserRequestDto.builder()
+        UserRequest requestDto = UserRequest.builder()
                 .email("test3@test.test")
                 .password("test3")
                 .name("테스트3")
                 .build();
 
-        User user = User.builder()
+        UserEntity user = UserEntity.builder()
                 .email(requestDto.email())
                 .password(requestDto.password())
                 .name(requestDto.name())
@@ -51,13 +51,13 @@ class UserServiceTest {
                 .build();
 
         when(userService.registerUser(requestDto)).thenReturn(user);
-        User savedUser = userService.registerUser(requestDto);
+        UserEntity savedUser = userService.registerUser(requestDto);
         assertThat(savedUser).isEqualTo(user);
     }
 
     @Test
     void 회원가입_실패_가입된_이메일(){
-        UserRequestDto requestDto = UserRequestDto.builder()
+        UserRequest requestDto = UserRequest.builder()
                 .email("test@test.test")
                 .password("test")
                 .name("test")
@@ -70,7 +70,7 @@ class UserServiceTest {
 
     @Test
     void 로그인_실패_가입되지_않은_이메일(){
-        LoginUserRequestDto requestDto = LoginUserRequestDto.builder()
+        LoginRequest requestDto = LoginRequest.builder()
                 .email("test@test.test")
                 .password("test")
                 .build();
@@ -82,7 +82,7 @@ class UserServiceTest {
 
     @Test
     void 로그인_실패_비밀번호_틀림(){
-        LoginUserRequestDto requestDto = LoginUserRequestDto.builder()
+        LoginRequest requestDto = LoginRequest.builder()
                 .email("test@test.test")
                 .password("test1")
                 .build();
@@ -94,7 +94,7 @@ class UserServiceTest {
 
     @Test
     void 로그인_실패_삭제된_회원(){
-        LoginUserRequestDto requestDto = LoginUserRequestDto.builder()
+        LoginRequest requestDto = LoginRequest.builder()
                 .email("test@test.test")
                 .password("test1")
                 .build();
@@ -106,7 +106,7 @@ class UserServiceTest {
 
     @Test
     void 로그인_성공(){
-        LoginUserRequestDto requestDto = LoginUserRequestDto.builder()
+        LoginRequest requestDto = LoginRequest.builder()
                 .email("test@test.test")
                 .password("test")
                 .build();
@@ -122,27 +122,27 @@ class UserServiceTest {
 
     @Test
     void 로그인_회원_정보_가져오기(){
-        UserResponseDto userResponseDto = UserResponseDto.builder()
+        UserResponse userResponseDto = UserResponse.builder()
                 .id(1L)
                 .email("test@test.test")
                 .name("테스트")
                 .createDate("방금전")
                 .build();
         when(userService.getLoginUserInfo()).thenReturn(userResponseDto);
-        UserResponseDto result = userService.getLoginUserInfo();
+        UserResponse result = userService.getLoginUserInfo();
         assertThat(result).isEqualTo(userResponseDto);
     }
 
     @Test
     void 회원_정보_가져오기(){
-        UserResponseDto userResponseDto = UserResponseDto.builder()
+        UserResponse userResponseDto = UserResponse.builder()
                 .id(1L)
                 .email("test@test.test")
                 .name("테스트")
                 .createDate("방금전")
                 .build();
         when(userService.getUserInfo(1L)).thenReturn(userResponseDto);
-        UserResponseDto result = userService.getUserInfo(1L);
+        UserResponse result = userService.getUserInfo(1L);
         assertThat(result).isEqualTo(userResponseDto);
     }
 
@@ -160,7 +160,7 @@ class UserServiceTest {
         byte[] bytesFile = Files.readAllBytes(file.toPath());
         String imgData = Base64.getEncoder().encodeToString(bytesFile);
 
-        UserRequestDto requestDto = UserRequestDto.builder()
+        UserRequest requestDto = UserRequest.builder()
                 .id(1L)
                 .email("test@test.test")
                 .name("test")
@@ -169,7 +169,7 @@ class UserServiceTest {
                 .imageName("test.png")
                 .build();
 
-        UserResponseDto userResponseDto = UserResponseDto.builder()
+        UserResponse userResponseDto = UserResponse.builder()
                 .id(1L)
                 .email("test@test.test")
                 .name("test")
@@ -177,13 +177,13 @@ class UserServiceTest {
                 .profileImage("imgUrl")
                 .build();
         when(userService.modifyUserInfo(requestDto)).thenReturn(userResponseDto);
-        UserResponseDto result = userService.modifyUserInfo(requestDto);
+        UserResponse result = userService.modifyUserInfo(requestDto);
         assertThat(result).isEqualTo(userResponseDto);
     }
 
     @Test
     void 회원_정보_변경_실패_로그인_회원_요청_회원_다름(){
-        UserRequestDto requestDto = UserRequestDto.builder()
+        UserRequest requestDto = UserRequest.builder()
                 .id(1L)
                 .email("test@test.test")
                 .name("test")
@@ -198,7 +198,7 @@ class UserServiceTest {
 
     @Test
     void 회원_정보_변경_실패_없는_회원(){
-        UserRequestDto requestDto = UserRequestDto.builder()
+        UserRequest requestDto = UserRequest.builder()
                 .id(1L)
                 .email("test@test.test")
                 .name("test")

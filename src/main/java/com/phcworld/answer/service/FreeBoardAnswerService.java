@@ -5,15 +5,15 @@ import com.phcworld.answer.dto.FreeBoardAnswerRequestDto;
 import com.phcworld.answer.dto.FreeBoardAnswerResponseDto;
 import com.phcworld.answer.repository.FreeBoardAnswerRepository;
 import com.phcworld.common.dto.SuccessResponseDto;
-import com.phcworld.exception.model.NotFoundException;
-import com.phcworld.exception.model.NotMatchUserException;
-import com.phcworld.exception.model.UnauthorizedException;
+import com.phcworld.common.exception.model.NotFoundException;
+import com.phcworld.common.exception.model.NotMatchUserException;
+import com.phcworld.common.exception.model.UnauthorizedException;
 import com.phcworld.freeboard.domain.FreeBoard;
 import com.phcworld.freeboard.repository.FreeBoardRepository;
-import com.phcworld.security.utils.SecurityUtil;
+import com.phcworld.common.security.utils.SecurityUtil;
 import com.phcworld.user.domain.Authority;
-import com.phcworld.user.domain.User;
-import com.phcworld.user.repository.UserRepository;
+import com.phcworld.user.infrastructure.UserEntity;
+import com.phcworld.user.infrastructure.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,13 +28,13 @@ public class FreeBoardAnswerService {
 
 	private final FreeBoardAnswerRepository freeBoardAnswerRepository;
 
-	private final UserRepository userRepository;
+	private final UserJpaRepository userRepository;
 	
 	public FreeBoardAnswerResponseDto register(FreeBoardAnswerRequestDto request) {
 		FreeBoard freeBoard = freeBoardRepository.findById(request.boardId())
 				.orElseThrow(NotFoundException::new);
 		Long userId = SecurityUtil.getCurrentMemberId();
-		User user = userRepository.findById(userId)
+		UserEntity user = userRepository.findById(userId)
 				.orElseThrow(NotFoundException::new);
 		FreeBoardAnswer freeBoardAnswer = FreeBoardAnswer.builder()
 				.writer(user)

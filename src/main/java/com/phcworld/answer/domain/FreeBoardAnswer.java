@@ -2,8 +2,8 @@ package com.phcworld.answer.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.phcworld.freeboard.domain.FreeBoard;
-import com.phcworld.user.domain.User;
-import com.phcworld.utils.LocalDateTimeUtils;
+import com.phcworld.user.infrastructure.UserEntity;
+import com.phcworld.common.utils.LocalDateTimeUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -31,7 +31,7 @@ public class FreeBoardAnswer {
 	@ManyToOne
 	@JoinColumn(foreignKey = @ForeignKey(name = "fk_freeBoardAnswer_writer"))
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-	private User writer;
+	private UserEntity writer;
 
 	@ManyToOne
 	@JoinColumn(foreignKey = @ForeignKey(name = "fk_freeBoardAnswer_to_freeBoard"), nullable = false)

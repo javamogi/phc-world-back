@@ -1,7 +1,7 @@
 package com.phcworld.freeboard.dto;
 
-import com.phcworld.user.domain.User;
-import com.phcworld.utils.LocalDateTimeUtils;
+import com.phcworld.user.infrastructure.UserEntity;
+import com.phcworld.common.utils.LocalDateTimeUtils;
 import lombok.*;
 
 import java.time.Duration;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class FreeBoardSelectDto {
 
     private Long id;
-    private User writer;
+    private UserEntity writer;
     private String title;
     private String contents;
     private LocalDateTime createDate;
