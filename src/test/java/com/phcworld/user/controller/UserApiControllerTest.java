@@ -1,7 +1,7 @@
 package com.phcworld.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.phcworld.common.jwt.TokenProvider;
+import com.phcworld.common.jwt.TokenProviderImpl;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.domain.dto.LoginRequest;
 import com.phcworld.user.domain.dto.UserRequest;
@@ -45,7 +45,7 @@ class UserApiControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private TokenProvider tokenProvider;
+    private TokenProviderImpl tokenProvider;
 
     @Test
     void 회원가입_성공() throws Exception {

@@ -3,6 +3,7 @@ package com.phcworld.common.jwt;
 import com.phcworld.common.exception.model.BadRequestException;
 import com.phcworld.common.exception.model.UnauthorizedException;
 import com.phcworld.common.jwt.dto.TokenDto;
+import com.phcworld.user.service.port.TokenProvider;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class TokenProvider {
+public class TokenProviderImpl implements TokenProvider {
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "Bearer ";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;            // 30분
@@ -36,11 +37,12 @@ public class TokenProvider {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    public TokenProvider(@Value("${jwt.secret}") String secretKey) {
+    public TokenProviderImpl(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
+    @Override
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -64,6 +66,7 @@ public class TokenProvider {
         }
     }
 
+    @Override
     public TokenDto generateTokenDto(Authentication authentication) {
 //        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 //        String id = userDetails.getUsername();
@@ -91,6 +94,7 @@ public class TokenProvider {
                 .build();
     }
 
+    @Override
     public Authentication getAuthentication(String accessToken) {
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
@@ -122,6 +126,7 @@ public class TokenProvider {
         }
     }
 
+    @Override
     public String generateAccessToken(Authentication authentication, long now){
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String id = userDetails.getUsername();
@@ -138,6 +143,7 @@ public class TokenProvider {
                 .compact();
     }
 
+    @Override
     public String generateRefreshToken(Authentication authentication, long now){
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String id = userDetails.getUsername();

@@ -2,7 +2,7 @@ package com.phcworld.jwt;
 
 import com.phcworld.common.exception.model.BadRequestException;
 import com.phcworld.common.exception.model.UnauthorizedException;
-import com.phcworld.common.jwt.TokenProvider;
+import com.phcworld.common.jwt.TokenProviderImpl;
 import com.phcworld.common.jwt.dto.TokenDto;
 import com.phcworld.user.domain.Authority;
 import io.jsonwebtoken.Jwts;
@@ -32,10 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
-class TokenProviderTest {
+class TokenProviderImplTest {
 
     @Autowired
-    private TokenProvider tokenProvider;
+    private TokenProviderImpl tokenProvider;
 
     @Value("${jwt.secret}")
     private String secretKey;

@@ -1,6 +1,6 @@
 package com.phcworld.common.jwt.config;
 
-import com.phcworld.common.jwt.TokenProvider;
+import com.phcworld.common.jwt.TokenProviderImpl;
 import com.phcworld.common.jwt.filter.JwtExceptionFilter;
 import com.phcworld.common.jwt.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @RequiredArgsConstructor
 public class JwtSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
-    private final TokenProvider tokenProvider;
+    private final TokenProviderImpl tokenProvider;
     private final JwtExceptionFilter jwtExceptionFilter;
 
     // TokenProvider 를 주입받아서 JwtFilter 를 통해 Security 로직에 필터를 등록

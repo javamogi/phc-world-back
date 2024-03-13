@@ -109,7 +109,7 @@ class FreeBoardServiceTest {
         Map<String, Object> map = new HashMap<>();
         FreeBoardResponseDto responseDto = FreeBoardResponseDto.builder()
                 .id(1L)
-                .writer(UserResponse.of(user))
+                .writer(UserResponse.from(user.toModel()))
                 .title("title")
                 .contents("contents")
                 .createDate("방금전")
@@ -142,7 +142,7 @@ class FreeBoardServiceTest {
                 .build();
         FreeBoardResponseDto responseDto = FreeBoardResponseDto.builder()
                 .id(1L)
-                .writer(UserResponse.of(user))
+                .writer(UserResponse.from(user.toModel()))
                 .title("title")
                 .contents("contents")
                 .createDate("방금전")

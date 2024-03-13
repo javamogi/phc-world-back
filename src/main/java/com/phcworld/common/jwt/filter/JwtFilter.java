@@ -1,6 +1,6 @@
 package com.phcworld.common.jwt.filter;
 
-import com.phcworld.common.jwt.TokenProvider;
+import com.phcworld.common.jwt.TokenProviderImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ public class JwtFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER_PREFIX = "Bearer ";
 
-    private final TokenProvider tokenProvider;
+    private final TokenProviderImpl tokenProvider;
 
     // 실제 필터링 로직은 doFilterInternal 에 들어감
     // JWT 토큰의 인증 정보를 현재 쓰레드의 SecurityContext 에 저장하는 역할 수행

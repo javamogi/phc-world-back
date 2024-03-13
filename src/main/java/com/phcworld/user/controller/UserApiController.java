@@ -1,14 +1,13 @@
 package com.phcworld.user.controller;
 
 import com.phcworld.common.dto.SuccessResponseDto;
-import com.phcworld.user.domain.dto.LoginRequest;
 import com.phcworld.user.domain.dto.UserRequest;
 import com.phcworld.user.domain.dto.UserResponse;
-import com.phcworld.common.jwt.dto.TokenDto;
-import com.phcworld.user.service.UserService;
+import com.phcworld.user.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -18,16 +17,12 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class UserApiController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @PostMapping("")
+    @ResponseStatus(HttpStatus.CREATED)
     public UserResponse create(@Valid @ModelAttribute UserRequest user) {
-        return UserResponse.of(userService.registerUser(user));
-    }
-
-    @PostMapping("/login")
-    public TokenDto login(@Valid @RequestBody LoginRequest user) {
-        return userService.tokenLogin(user);
+        return userService.register(user);
     }
 
     @GetMapping("/userInfo")
@@ -47,16 +42,8 @@ public class UserApiController {
 
     @DeleteMapping("/{id}")
     public SuccessResponseDto deleteUser(@PathVariable(name = "id") Long id){
-        return userService.deleteUser(id);
+        return userService.delete(id);
     }
 
-    @GetMapping("/logout")
-    public String logout(){
-        return userService.logout();
-    }
 
-    @GetMapping("/newToken")
-    public TokenDto getToken(){
-        return userService.getNewToken();
-    }
 }

@@ -3,6 +3,7 @@ package com.phcworld.user.infrastructure;
 import com.phcworld.common.utils.FileConvertUtils;
 import com.phcworld.common.utils.LocalDateTimeUtils;
 import com.phcworld.user.domain.Authority;
+import com.phcworld.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -42,38 +43,40 @@ public class UserEntity implements Serializable {
 	private String profileImage;
 
 	private Boolean isDeleted;
-	
-	public String getFormattedCreateDate() {
-		return LocalDateTimeUtils.getTime(createDate);
+
+//	public String getFormattedCreateDate() {
+//		return LocalDateTimeUtils.getTime(createDate);
+//	}
+//
+//	public String getProfileImageData(){
+//		return FileConvertUtils.getFileData(profileImage);
+//	}
+//	public String getProfileImageUrl(){
+//		return "http://localhost:8080/image/" + profileImage;
+//	}
+
+	public static UserEntity from(User user) {
+		return UserEntity.builder()
+				.id(user.getId())
+				.email(user.getEmail())
+				.password(user.getPassword())
+				.name(user.getName())
+				.authority(user.getAuthority())
+				.createDate(user.getCreateDate())
+				.profileImage(user.getProfileImage())
+				.isDeleted(user.isDeleted())
+				.build();
 	}
 
-	public String getProfileImageData(){
-		return FileConvertUtils.getFileData(profileImage);
-	}
-	public String getProfileImageUrl(){
-		return "http://localhost:8080/image/" + profileImage;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		UserEntity user = (UserEntity) o;
-		return Objects.equals(id, user.id) && Objects.equals(email, user.email) && Objects.equals(name, user.name) && authority == user.authority;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, email, name, authority);
-	}
-
-	public void modify(String password, String name, String profileImage) {
-		this.password = password;
-		this.name = name;
-		this.profileImage = profileImage;
-	}
-
-	public void delete() {
-		this.isDeleted = true;
+	public User toModel() {
+		return User.builder()
+				.id(id)
+				.email(email)
+				.name(name)
+				.authority(authority)
+				.profileImage(profileImage)
+				.createDate(createDate)
+				.isDeleted(isDeleted)
+				.build();
 	}
 }

@@ -2,7 +2,7 @@ package com.phcworld.answer.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phcworld.answer.dto.FreeBoardAnswerRequestDto;
-import com.phcworld.common.jwt.TokenProvider;
+import com.phcworld.common.jwt.TokenProviderImpl;
 import com.phcworld.user.domain.Authority;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +39,7 @@ class FreeBoardAnswerApiControllerTest {
     private MockMvc mvc;
 
     @SpyBean
-    private TokenProvider tokenProvider;
+    private TokenProviderImpl tokenProvider;
 
     @Autowired
     private ObjectMapper objectMapper;

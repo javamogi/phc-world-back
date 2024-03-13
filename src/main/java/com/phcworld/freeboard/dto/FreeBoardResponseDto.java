@@ -22,7 +22,7 @@ public record FreeBoardResponseDto(
     public static FreeBoardResponseDto of(FreeBoard freeBoard){
         return FreeBoardResponseDto.builder()
                 .id(freeBoard.getId())
-                .writer(UserResponse.of(freeBoard.getWriter()))
+                .writer(UserResponse.from(freeBoard.getWriter().toModel()))
                 .title(freeBoard.getTitle())
                 .contents(freeBoard.getContents())
                 .createDate(freeBoard.getFormattedCreateDate())
@@ -38,7 +38,7 @@ public record FreeBoardResponseDto(
     public static FreeBoardResponseDto of(FreeBoardSelectDto freeBoard){
         return FreeBoardResponseDto.builder()
                 .id(freeBoard.getId())
-                .writer(UserResponse.of(freeBoard.getWriter()))
+                .writer(UserResponse.from(freeBoard.getWriter().toModel()))
                 .title(freeBoard.getTitle())
                 .contents(freeBoard.getContents())
                 .createDate(freeBoard.getFormattedCreateDate())

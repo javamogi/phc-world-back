@@ -14,7 +14,7 @@ public record FreeBoardAnswerResponseDto(
     public static FreeBoardAnswerResponseDto of(FreeBoardAnswer freeBoardAnswer) {
         return FreeBoardAnswerResponseDto.builder()
                 .id(freeBoardAnswer.getId())
-                .writer(UserResponse.of(freeBoardAnswer.getWriter()))
+                .writer(UserResponse.from(freeBoardAnswer.getWriter().toModel()))
                 .contents(freeBoardAnswer.getContents())
                 .updatedDate(freeBoardAnswer.getFormattedUpdateDate())
                 .build();

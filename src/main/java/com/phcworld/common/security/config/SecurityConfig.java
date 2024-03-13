@@ -1,6 +1,6 @@
 package com.phcworld.common.security.config;
 
-import com.phcworld.common.jwt.TokenProvider;
+import com.phcworld.common.jwt.TokenProviderImpl;
 import com.phcworld.common.jwt.config.JwtSecurityConfig;
 import com.phcworld.common.jwt.entry.JwtAuthenticationEntryPoint;
 import com.phcworld.common.jwt.filter.JwtExceptionFilter;
@@ -23,7 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final TokenProvider tokenProvider;
+    private final TokenProviderImpl tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtExceptionFilter jwtExceptionFilter;

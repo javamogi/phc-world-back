@@ -2,7 +2,7 @@ package com.phcworld.freeboard.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phcworld.freeboard.dto.FreeBoardRequestDto;
-import com.phcworld.common.jwt.TokenProvider;
+import com.phcworld.common.jwt.TokenProviderImpl;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.common.utils.FileConvertUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +40,7 @@ class FreeBoardApiControllerTest {
     private MockMvc mvc;
 
     @SpyBean
-    private TokenProvider tokenProvider;
+    private TokenProviderImpl tokenProvider;
 
 
     @Autowired
