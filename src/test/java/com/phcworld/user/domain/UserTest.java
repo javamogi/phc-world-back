@@ -1,5 +1,6 @@
 package com.phcworld.user.domain;
 
+import com.phcworld.mock.FakeLocalDateTimeHolder;
 import com.phcworld.mock.FakePasswordEncode;
 import com.phcworld.user.domain.dto.UserRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +25,7 @@ class UserTest {
         LocalDateTime now = LocalDateTime.now();
 
         // when
-        User user = User.from(userRequest, new FakePasswordEncode("test"), now);
+        User user = User.from(userRequest, new FakePasswordEncode("test"), new FakeLocalDateTimeHolder(now));
 
         // then
         assertThat(user.getId()).isNull();

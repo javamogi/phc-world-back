@@ -7,7 +7,7 @@ import com.phcworld.freeboard.domain.FreeBoard;
 import com.phcworld.freeboard.dto.*;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.infrastructure.UserEntity;
-import com.phcworld.user.domain.dto.UserResponse;
+import com.phcworld.user.controller.port.UserResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

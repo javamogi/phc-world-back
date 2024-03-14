@@ -1,240 +1,267 @@
 package com.phcworld.user.service;
 
-import com.phcworld.common.dto.SuccessResponseDto;
+import com.phcworld.common.exception.model.DeletedEntityException;
 import com.phcworld.common.exception.model.DuplicationException;
 import com.phcworld.common.exception.model.NotFoundException;
 import com.phcworld.common.exception.model.UnauthorizedException;
+import com.phcworld.mock.FakeAuthentication;
+import com.phcworld.mock.FakeLocalDateTimeHolder;
+import com.phcworld.mock.FakePasswordEncode;
+import com.phcworld.mock.FakeUserRepository;
 import com.phcworld.user.domain.Authority;
-import com.phcworld.user.infrastructure.UserEntity;
+import com.phcworld.user.domain.User;
 import com.phcworld.user.domain.dto.UserRequest;
-import com.phcworld.user.domain.dto.UserResponse;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
 
-    @Mock
     private UserServiceImpl userService;
 
-//    @Test
-//    void 회원가입() {
-//        UserRequest requestDto = UserRequest.builder()
-//                .email("test3@test.test")
-//                .password("test3")
-//                .name("테스트3")
-//                .build();
-//
-//        UserEntity user = UserEntity.builder()
-//                .email(requestDto.email())
-//                .password(requestDto.password())
-//                .name(requestDto.name())
-//                .profileImage("blank-profile-picture.png")
-//                .authority(Authority.ROLE_USER)
-//                .createDate(LocalDateTime.now())
-//                .build();
-//
-//        when(userService.register(requestDto)).thenReturn(user);
-//        UserEntity savedUser = userService.register(requestDto);
-//        assertThat(savedUser).isEqualTo(user);
-//    }
+    @BeforeEach
+    void init(){
+        FakeUserRepository fakeUserRepository = new FakeUserRepository();
+        FakePasswordEncode fakePasswordEncode = new FakePasswordEncode("test2");
+        FakeLocalDateTimeHolder fakeLocalDateTimeHolder = new FakeLocalDateTimeHolder(
+                LocalDateTime.of(2024, 3, 13, 11, 11, 11, 111111));
+        this.userService = UserServiceImpl.builder()
+                .userRepository(fakeUserRepository)
+                .passwordEncoder(fakePasswordEncode)
+                .localDateTimeHolder(fakeLocalDateTimeHolder)
+                .build();
+
+        fakeUserRepository.save(User.builder()
+                        .id(1L)
+                        .email("test@test.test")
+                        .name("테스트")
+                        .password("test")
+                        .isDeleted(false)
+                        .authority(Authority.ROLE_USER)
+                        .profileImage("blank-profile-picture.png")
+                        .createDate(LocalDateTime.of(2024, 3, 13, 11, 11, 11, 111111))
+                        .build());
+
+        fakeUserRepository.save(User.builder()
+                .id(2L)
+                .email("test2@test.test")
+                .name("테스트2")
+                .password("test2")
+                .isDeleted(true)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(LocalDateTime.of(2024, 3, 13, 11, 11, 11, 111111))
+                .build());
+    }
 
     @Test
-    void 회원가입_실패_가입된_이메일(){
+    @DisplayName("회원가입 성공")
+    void register() {
+        // given
+        UserRequest requestDto = UserRequest.builder()
+                .email("test3@test.test")
+                .password("test3")
+                .name("테스트3")
+                .build();
+
+        // when
+        User result = userService.register(requestDto);
+
+        // then
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getEmail()).isEqualTo("test3@test.test");
+        assertThat(result.getPassword()).isEqualTo("test2");
+        assertThat(result.getName()).isEqualTo("테스트3");
+        assertThat(result.getProfileImage()).isEqualTo("blank-profile-picture.png");
+        assertThat(result.getAuthority()).isEqualTo(Authority.ROLE_USER);
+        assertThat(result.getCreateDate()).isEqualTo(LocalDateTime.of(2024, 3, 13, 11, 11, 11, 111111));
+    }
+
+    @Test
+    @DisplayName("회원가입 실패 가입된 이메일")
+    void failedRegisterWhenDuplicateEmail(){
+        // given
         UserRequest requestDto = UserRequest.builder()
                 .email("test@test.test")
                 .password("test")
                 .name("test")
                 .build();
-        when(userService.register(requestDto)).thenThrow(DuplicationException.class);
+
+        // when
+        // then
         Assertions.assertThrows(DuplicationException.class, () -> {
             userService.register(requestDto);
         });
     }
 
-//    @Test
-//    void 로그인_실패_가입되지_않은_이메일(){
-//        LoginRequest requestDto = LoginRequest.builder()
-//                .email("test@test.test")
-//                .password("test")
-//                .build();
-//        when(userService.tokenLogin(requestDto)).thenThrow(NotFoundException.class);
-//        Assertions.assertThrows(NotFoundException.class, () -> {
-//            userService.tokenLogin(requestDto);
-//        });
-//    }
-
-//    @Test
-//    void 로그인_실패_비밀번호_틀림(){
-//        LoginRequest requestDto = LoginRequest.builder()
-//                .email("test@test.test")
-//                .password("test1")
-//                .build();
-//        when(userService.tokenLogin(requestDto)).thenThrow(BadCredentialsException.class);
-//        Assertions.assertThrows(BadCredentialsException.class, () -> {
-//            userService.tokenLogin(requestDto);
-//        });
-//    }
-//
-//    @Test
-//    void 로그인_실패_삭제된_회원(){
-//        LoginRequest requestDto = LoginRequest.builder()
-//                .email("test@test.test")
-//                .password("test1")
-//                .build();
-//        when(userService.tokenLogin(requestDto)).thenThrow(DeletedEntityException.class);
-//        Assertions.assertThrows(DeletedEntityException.class, () -> {
-//            userService.tokenLogin(requestDto);
-//        });
-//    }
-
-//    @Test
-//    void 로그인_성공(){
-//        LoginRequest requestDto = LoginRequest.builder()
-//                .email("test@test.test")
-//                .password("test")
-//                .build();
-//        TokenDto tokenDto = TokenDto.builder()
-//                .grantType("grantType")
-//                .accessToken("accessToken")
-//                .refreshToken("refreshToken")
-//                .build();
-//        when(userService.tokenLogin(requestDto)).thenReturn(tokenDto);
-//        TokenDto resultToken = userService.tokenLogin(requestDto);
-//        assertThat(resultToken).isEqualTo(tokenDto);
-//    }
-
     @Test
-    void 로그인_회원_정보_가져오기(){
-        UserResponse userResponseDto = UserResponse.builder()
-                .id(1L)
-                .email("test@test.test")
-                .name("테스트")
-                .createDate("방금전")
-                .build();
-        when(userService.getLoginUserInfo()).thenReturn(userResponseDto);
-        UserResponse result = userService.getLoginUserInfo();
-        assertThat(result).isEqualTo(userResponseDto);
+    @DisplayName("로그인 회원정보 가져오기")
+    void getLoginUserInfo(){
+        // given
+        Authentication authentication = new FakeAuthentication(1).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        User result = userService.getLoginUserInfo();
+
+        // then
+        assertThat(result.getId()).isEqualTo(1);
+        assertThat(result.getEmail()).isEqualTo("test@test.test");
     }
 
     @Test
-    void 회원_정보_가져오기(){
-        UserResponse userResponseDto = UserResponse.builder()
-                .id(1L)
-                .email("test@test.test")
-                .name("테스트")
-                .createDate("방금전")
-                .build();
-        when(userService.getUserInfo(1L)).thenReturn(userResponseDto);
-        UserResponse result = userService.getUserInfo(1L);
-        assertThat(result).isEqualTo(userResponseDto);
+    @DisplayName("요청 회원정보 가져오기")
+    void getUserInfo(){
+        // given
+        long id = 1;
+
+        // when
+        User result = userService.getUserInfo(id);
+
+        // then
+        assertThat(result.getId()).isEqualTo(1);
+        assertThat(result.getEmail()).isEqualTo("test@test.test");
     }
 
     @Test
-    void 회원_정보_요청_없는_회원(){
-        when(userService.getUserInfo(3L)).thenThrow(NotFoundException.class);
+    @DisplayName("회원 정보 요청 실패 가입하지 않은 회원")
+    void failedGetUserInfo(){
+        // given
+        long id = 999;
+
+        // when
+        // then
         Assertions.assertThrows(NotFoundException.class, () -> {
-            userService.getUserInfo(3L);
+            userService.getUserInfo(id);
         });
     }
 
     @Test
-    void 회원_정보_변경_성공() throws IOException {
-        File file = new File("src/main/resources/static/image/PHC-WORLD.png");
-        byte[] bytesFile = Files.readAllBytes(file.toPath());
-        String imgData = Base64.getEncoder().encodeToString(bytesFile);
-
+    @DisplayName("회원 정보 변경 성공")
+    void modifyUserInfo() {
+        // given
         UserRequest requestDto = UserRequest.builder()
                 .id(1L)
                 .email("test@test.test")
-                .name("test")
-                .password("test")
-                .imageData(imgData)
-                .imageName("test.png")
+                .name("이름")
+                .password("test2")
                 .build();
+        Authentication authentication = new FakeAuthentication(1).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserResponse userResponseDto = UserResponse.builder()
-                .id(1L)
-                .email("test@test.test")
-                .name("test")
-                .createDate("방금전")
-                .profileImage("imgUrl")
-                .build();
-        when(userService.modifyUserInfo(requestDto)).thenReturn(userResponseDto);
-        UserResponse result = userService.modifyUserInfo(requestDto);
-        assertThat(result).isEqualTo(userResponseDto);
+        // when
+        User result = userService.modifyUserInfo(requestDto);
+
+        // then
+        assertThat(result.getId()).isEqualTo(1);
+        assertThat(result.getEmail()).isEqualTo("test@test.test");
+        assertThat(result.getName()).isEqualTo("이름");
+        assertThat(result.getPassword()).isEqualTo("test2");
     }
 
     @Test
-    void 회원_정보_변경_실패_로그인_회원_요청_회원_다름(){
+    @DisplayName("회원정보 변경 실패 로그인 회원 요청 회원 다름")
+    void failedLoginWhenDifferentUser(){
+        // given
         UserRequest requestDto = UserRequest.builder()
-                .id(1L)
-                .email("test@test.test")
-                .name("test")
-                .password("test")
+                .id(2L)
+                .email("test2@test.test")
+                .name("헤헤")
+                .password("test2")
                 .build();
+        Authentication authentication = new FakeAuthentication(1).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        when(userService.modifyUserInfo(requestDto)).thenThrow(UnauthorizedException.class);
+        // when
+        // then
         Assertions.assertThrows(UnauthorizedException.class, () -> {
             userService.modifyUserInfo(requestDto);
         });
     }
 
     @Test
-    void 회원_정보_변경_실패_없는_회원(){
+    @DisplayName("회원 정보 변경 실패 없는 회원")
+    void failedLoginWhenNotFoundUser(){
+        // given
         UserRequest requestDto = UserRequest.builder()
-                .id(1L)
+                .id(999L)
                 .email("test@test.test")
                 .name("test")
                 .password("test")
                 .build();
+        Authentication authentication = new FakeAuthentication(999).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        when(userService.modifyUserInfo(requestDto)).thenThrow(NotFoundException.class);
+        // when
+        // then
         Assertions.assertThrows(NotFoundException.class, () -> {
             userService.modifyUserInfo(requestDto);
         });
     }
 
     @Test
-    void 회원_정보_삭제_성공(){
-        SuccessResponseDto successResponseDto = SuccessResponseDto.builder()
-                .statusCode(200)
-                .message("삭제 성공")
-                .build();
+    @DisplayName("회원 정보 삭제 성공")
+    void successDelete(){
+        // given
+        long id = 1;
+        Authentication authentication = new FakeAuthentication(id).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        when(userService.delete(1L)).thenReturn(successResponseDto);
-        SuccessResponseDto result = userService.delete(1L);
-        assertThat(result).isEqualTo(successResponseDto);
+        // when
+        User result = userService.delete(id);
+
+        // then
+        assertThat(result.isDeleted()).isTrue();
     }
 
     @Test
-    void 회원_정보_삭제_실패_로그인_회원_요청_회원_다름(){
+    @DisplayName("회원 정보 삭제 실패 로그인 회원 요청 회원 다름")
+    void failedDeleteWhenDifferentUser(){
+        // given
         Long id = 1L;
-        when(userService.delete(id)).thenThrow(UnauthorizedException.class);
+        Authentication authentication = new FakeAuthentication(2L).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        // when
+        // then
         Assertions.assertThrows(UnauthorizedException.class, () -> {
             userService.delete(id);
         });
     }
 
     @Test
-    void 회원_정보_삭제_실패_회원_없음(){
-        Long id = 1L;
-        when(userService.delete(id)).thenThrow(NotFoundException.class);
+    @DisplayName("회원 정보 삭제 실패 회원 없음")
+    void failedDeleteWhenNotFoundUser(){
+        // given
+        Long id = 999L;
+        Authentication authentication = new FakeAuthentication(999L).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        // when
+        // then
         Assertions.assertThrows(NotFoundException.class, () -> {
+            userService.delete(id);
+        });
+    }
+
+    @Test
+    @DisplayName("회원 정보 삭제 실패 이미 삭제된 회원")
+    void failedDeleteWhenDeletedUser(){
+        // given
+        Long id = 2L;
+        Authentication authentication = new FakeAuthentication(2L).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        // then
+        Assertions.assertThrows(DeletedEntityException.class, () -> {
             userService.delete(id);
         });
     }

@@ -2,7 +2,7 @@ package com.phcworld.freeboard.dto;
 
 import com.phcworld.answer.dto.FreeBoardAnswerResponseDto;
 import com.phcworld.freeboard.domain.FreeBoard;
-import com.phcworld.user.domain.dto.UserResponse;
+import com.phcworld.user.controller.port.UserResponse;
 import lombok.Builder;
 
 import java.util.List;

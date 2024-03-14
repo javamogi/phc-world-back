@@ -1,5 +1,7 @@
 package com.phcworld.user.domain;
 
+import com.phcworld.common.exception.model.DeletedEntityException;
+import com.phcworld.common.service.LocalDateTimeHolder;
 import com.phcworld.user.domain.dto.UserRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,13 +23,13 @@ public class User {
     private String profileImage;
     private boolean isDeleted;
 
-    public static User from(UserRequest requestUser, PasswordEncoder passwordEncoder, LocalDateTime now) {
+    public static User from(UserRequest requestUser, PasswordEncoder passwordEncoder, LocalDateTimeHolder timeHolder) {
         return User.builder()
                 .email(requestUser.email())
                 .name(requestUser.name())
                 .password(passwordEncoder.encode(requestUser.password()))
                 .authority(Authority.ROLE_USER)
-                .createDate(now)
+                .createDate(timeHolder.now())
                 .profileImage("blank-profile-picture.png")
                 .build();
     }
@@ -46,6 +48,9 @@ public class User {
     }
 
     public void delete() {
-        this.isDeleted = !this.isDeleted;
+        if(this.isDeleted) {
+            throw new DeletedEntityException();
+        }
+        this.isDeleted = true;
     }
 }

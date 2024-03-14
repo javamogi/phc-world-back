@@ -1,7 +1,7 @@
 package com.phcworld.answer.dto;
 
 import com.phcworld.answer.domain.FreeBoardAnswer;
-import com.phcworld.user.domain.dto.UserResponse;
+import com.phcworld.user.controller.port.UserResponse;
 import lombok.Builder;
 
 @Builder

@@ -7,18 +7,23 @@ import com.phcworld.common.security.utils.SecurityUtil;
 import com.phcworld.user.controller.port.LoginService;
 import com.phcworld.user.domain.dto.LoginRequest;
 import com.phcworld.user.service.port.TokenProvider;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Builder
 public class LoginServiceImpl implements LoginService {
 
     private final TokenProvider tokenProvider;
-    private final CustomUserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
     @Override

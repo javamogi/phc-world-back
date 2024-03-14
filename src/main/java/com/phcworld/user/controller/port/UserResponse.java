@@ -1,8 +1,7 @@
-package com.phcworld.user.domain.dto;
+package com.phcworld.user.controller.port;
 
 import com.phcworld.common.utils.LocalDateTimeUtils;
 import com.phcworld.user.domain.User;
-import com.phcworld.user.infrastructure.UserEntity;
 import lombok.Builder;
 
 @Builder

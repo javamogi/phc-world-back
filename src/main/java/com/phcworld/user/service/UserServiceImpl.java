@@ -4,17 +4,15 @@ import com.phcworld.common.dto.SuccessResponseDto;
 import com.phcworld.common.exception.model.DuplicationException;
 import com.phcworld.common.exception.model.NotFoundException;
 import com.phcworld.common.exception.model.UnauthorizedException;
-import com.phcworld.file.domain.FileType;
-import com.phcworld.file.service.UploadFileService;
 import com.phcworld.common.security.utils.SecurityUtil;
+import com.phcworld.common.service.LocalDateTimeHolder;
 import com.phcworld.user.controller.port.UserService;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.domain.User;
-import com.phcworld.user.infrastructure.UserEntity;
 import com.phcworld.user.domain.dto.UserRequest;
-import com.phcworld.user.domain.dto.UserResponse;
-import com.phcworld.user.infrastructure.UserJpaRepository;
+import com.phcworld.user.controller.port.UserResponse;
 import com.phcworld.user.service.port.UserRepository;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,14 +25,16 @@ import java.time.LocalDateTime;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
+@Builder
 public class UserServiceImpl implements UserService {
 
 	private final PasswordEncoder passwordEncoder;
-	private final UploadFileService uploadFileService;
+//	private final UploadFileService uploadFileService;
 	private final UserRepository userRepository;
+	private final LocalDateTimeHolder localDateTimeHolder;
 
 	@Override
-	public UserResponse register(UserRequest requestUser) {
+	public User register(UserRequest requestUser) {
 		userRepository.findByEmail(requestUser.email())
 				.ifPresent(
 						user -> {
@@ -42,27 +42,25 @@ public class UserServiceImpl implements UserService {
 						}
 				);
 
-		User user = User.from(requestUser, passwordEncoder, LocalDateTime.now());
-		return UserResponse.from(userRepository.save(user));
+		User user = User.from(requestUser, passwordEncoder, localDateTimeHolder);
+		return userRepository.save(user);
 	}
 
 	@Override
-	public UserResponse getLoginUserInfo(){
+	public User getLoginUserInfo(){
 		Long userId = SecurityUtil.getCurrentMemberId();
-		User user = userRepository.findById(userId)
+		return userRepository.findById(userId)
 				.orElseThrow(NotFoundException::new);
-		return UserResponse.from(user);
 	}
 
 	@Override
-	public UserResponse getUserInfo(Long userId){
-		User user = userRepository.findById(userId)
+	public User getUserInfo(Long userId){
+		return userRepository.findById(userId)
 				.orElseThrow(NotFoundException::new);
-		return UserResponse.from(user);
 	}
 
 	@Override
-	public UserResponse modifyUserInfo(UserRequest requestDto){
+	public User modifyUserInfo(UserRequest requestDto){
         Long userId = SecurityUtil.getCurrentMemberId();
 		if(!userId.equals(requestDto.id())){
 			throw new UnauthorizedException();
@@ -70,19 +68,19 @@ public class UserServiceImpl implements UserService {
 		User user = userRepository.findById(requestDto.id())
 				.orElseThrow(NotFoundException::new);
 		String profileImg = user.getProfileImage();
-		if(requestDto.imageName() != null){
-			profileImg = uploadFileService.registerFile(
-					userId,
-					requestDto.imageName(),
-					requestDto.imageData(),
-					FileType.USER_PROFILE_IMG);
-		}
+//		if(requestDto.imageName() != null){
+//			profileImg = uploadFileService.registerFile(
+//					userId,
+//					requestDto.imageName(),
+//					requestDto.imageData(),
+//					FileType.USER_PROFILE_IMG);
+//		}
 		user = user.modify(requestDto, profileImg, passwordEncoder);
-		return UserResponse.from(userRepository.save(user));
+		return userRepository.save(user);
 	}
 
 	@Override
-	public SuccessResponseDto delete(Long id) {
+	public User delete(Long id) {
 		Long userId = SecurityUtil.getCurrentMemberId();
 		Authority authorities = SecurityUtil.getAuthorities();
 
@@ -92,11 +90,7 @@ public class UserServiceImpl implements UserService {
 		User user = userRepository.findById(id)
 				.orElseThrow(NotFoundException::new);
 		user.delete();
-		userRepository.save(user);
-		return SuccessResponseDto.builder()
-				.statusCode(200)
-				.message("삭제 성공")
-				.build();
+		return userRepository.save(user);
 	}
 
 }
