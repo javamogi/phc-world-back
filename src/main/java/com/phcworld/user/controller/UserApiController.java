@@ -1,6 +1,7 @@
 package com.phcworld.user.controller;
 
 import com.phcworld.common.dto.SuccessResponseDto;
+import com.phcworld.user.controller.port.UserService;
 import com.phcworld.user.domain.User;
 import com.phcworld.user.domain.dto.UserRequest;
 import com.phcworld.user.controller.port.UserResponse;
@@ -11,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 
 @RestController
@@ -21,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @Builder
 public class UserApiController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
@@ -34,6 +38,8 @@ public class UserApiController {
 
     @GetMapping("/userInfo")
     public ResponseEntity<UserResponse> getUserInfo(){
+//    public ResponseEntity<UserResponse> getUserInfo(Authentication authentication){
+//        log.info("principle : {},{}", authentication.getName(), authentication.getAuthorities());
         User user = userService.getLoginUserInfo();
         return ResponseEntity
                 .ok()
