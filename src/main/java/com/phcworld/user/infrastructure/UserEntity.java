@@ -1,7 +1,5 @@
 package com.phcworld.user.infrastructure;
 
-import com.phcworld.common.utils.FileConvertUtils;
-import com.phcworld.common.utils.LocalDateTimeUtils;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.domain.User;
 import jakarta.persistence.*;
@@ -11,7 +9,6 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity
 @Getter
@@ -43,17 +40,6 @@ public class UserEntity implements Serializable {
 	private String profileImage;
 
 	private Boolean isDeleted;
-
-//	public String getFormattedCreateDate() {
-//		return LocalDateTimeUtils.getTime(createDate);
-//	}
-//
-//	public String getProfileImageData(){
-//		return FileConvertUtils.getFileData(profileImage);
-//	}
-//	public String getProfileImageUrl(){
-//		return "http://localhost:8080/image/" + profileImage;
-//	}
 
 	public static UserEntity from(User user) {
 		return UserEntity.builder()

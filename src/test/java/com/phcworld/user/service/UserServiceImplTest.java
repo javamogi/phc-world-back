@@ -44,7 +44,7 @@ class UserServiceImplTest {
                         .name("테스트")
                         .password("test")
                         .isDeleted(false)
-                        .authority(Authority.ROLE_USER)
+                        .authority(Authority.ROLE_ADMIN)
                         .profileImage("blank-profile-picture.png")
                         .createDate(LocalDateTime.of(2024, 3, 13, 11, 11, 11, 111111))
                         .build());
@@ -59,6 +59,16 @@ class UserServiceImplTest {
                 .profileImage("blank-profile-picture.png")
                 .createDate(LocalDateTime.of(2024, 3, 13, 11, 11, 11, 111111))
                 .build());
+        fakeUserRepository.save(User.builder()
+                .id(3L)
+                .email("test3@test.test")
+                .name("테스트3")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(LocalDateTime.of(2024, 3, 13, 11, 11, 11, 111111))
+                .build());
     }
 
     @Test
@@ -66,9 +76,9 @@ class UserServiceImplTest {
     void register() {
         // given
         UserRequest requestDto = UserRequest.builder()
-                .email("test3@test.test")
-                .password("test3")
-                .name("테스트3")
+                .email("test4@test.test")
+                .password("test2")
+                .name("테스트4")
                 .build();
 
         // when
@@ -76,9 +86,9 @@ class UserServiceImplTest {
 
         // then
         assertThat(result.getId()).isNotNull();
-        assertThat(result.getEmail()).isEqualTo("test3@test.test");
+        assertThat(result.getEmail()).isEqualTo("test4@test.test");
         assertThat(result.getPassword()).isEqualTo("test2");
-        assertThat(result.getName()).isEqualTo("테스트3");
+        assertThat(result.getName()).isEqualTo("테스트4");
         assertThat(result.getProfileImage()).isEqualTo("blank-profile-picture.png");
         assertThat(result.getAuthority()).isEqualTo(Authority.ROLE_USER);
         assertThat(result.getCreateDate()).isEqualTo(LocalDateTime.of(2024, 3, 13, 11, 11, 11, 111111));
@@ -105,7 +115,7 @@ class UserServiceImplTest {
     @DisplayName("로그인 회원정보 가져오기")
     void getLoginUserInfo(){
         // given
-        Authentication authentication = new FakeAuthentication(1).getAuthentication();
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // when
@@ -153,7 +163,7 @@ class UserServiceImplTest {
                 .name("이름")
                 .password("test2")
                 .build();
-        Authentication authentication = new FakeAuthentication(1).getAuthentication();
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // when
@@ -176,7 +186,7 @@ class UserServiceImplTest {
                 .name("헤헤")
                 .password("test2")
                 .build();
-        Authentication authentication = new FakeAuthentication(1).getAuthentication();
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // when
@@ -196,7 +206,7 @@ class UserServiceImplTest {
                 .name("test")
                 .password("test")
                 .build();
-        Authentication authentication = new FakeAuthentication(999).getAuthentication();
+        Authentication authentication = new FakeAuthentication(999, Authority.ROLE_USER).getAuthentication();
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // when
@@ -211,7 +221,7 @@ class UserServiceImplTest {
     void successDelete(){
         // given
         long id = 1;
-        Authentication authentication = new FakeAuthentication(id).getAuthentication();
+        Authentication authentication = new FakeAuthentication(id, Authority.ROLE_USER).getAuthentication();
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // when
@@ -222,11 +232,28 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("회원 정보 삭제 성공 관리자 권한")
+    void successDeleteRequestAdmin(){
+        // given
+        long adminId = 1;
+        Authority authority = Authority.ROLE_ADMIN;
+        long userId = 3;
+        Authentication authentication = new FakeAuthentication(adminId, authority).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        User result = userService.delete(userId);
+
+        // then
+        assertThat(result.isDeleted()).isTrue();
+    }
+
+    @Test
     @DisplayName("회원 정보 삭제 실패 로그인 회원 요청 회원 다름")
     void failedDeleteWhenDifferentUser(){
         // given
         Long id = 1L;
-        Authentication authentication = new FakeAuthentication(2L).getAuthentication();
+        Authentication authentication = new FakeAuthentication(2L, Authority.ROLE_USER).getAuthentication();
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // when
@@ -241,7 +268,7 @@ class UserServiceImplTest {
     void failedDeleteWhenNotFoundUser(){
         // given
         Long id = 999L;
-        Authentication authentication = new FakeAuthentication(999L).getAuthentication();
+        Authentication authentication = new FakeAuthentication(999L, Authority.ROLE_USER).getAuthentication();
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // when
@@ -256,7 +283,7 @@ class UserServiceImplTest {
     void failedDeleteWhenDeletedUser(){
         // given
         Long id = 2L;
-        Authentication authentication = new FakeAuthentication(2L).getAuthentication();
+        Authentication authentication = new FakeAuthentication(2L, Authority.ROLE_USER).getAuthentication();
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // when

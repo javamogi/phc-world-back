@@ -1,10 +1,10 @@
 package com.phcworld.user.service;
 
-import com.phcworld.common.exception.model.DeletedEntityException;
 import com.phcworld.common.jwt.dto.TokenDto;
+import com.phcworld.common.jwt.service.CustomUserDetailsService;
+import com.phcworld.mock.FakeAuthentication;
 import com.phcworld.mock.FakePasswordEncode;
 import com.phcworld.mock.FakeTokenProvider;
-import com.phcworld.mock.FakeUserDetailsService;
 import com.phcworld.mock.FakeUserRepository;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.domain.User;
@@ -15,6 +15,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 
@@ -27,11 +29,10 @@ class LoginServiceImplTest {
     @BeforeEach
     void init(){
         FakeUserRepository fakeUserRepository = new FakeUserRepository();
-        FakeUserDetailsService fakeUserDetailsService = new FakeUserDetailsService(fakeUserRepository);
         FakeTokenProvider fakeTokenProvider = new FakeTokenProvider(1, true);
         FakePasswordEncode fakePasswordEncode = new FakePasswordEncode("test2");
         this.loginService = LoginServiceImpl.builder()
-                .userDetailsService(fakeUserDetailsService)
+                .userDetailsService(new CustomUserDetailsService(fakeUserRepository))
                 .tokenProvider(fakeTokenProvider)
                 .passwordEncoder(fakePasswordEncode)
                 .build();
@@ -71,7 +72,7 @@ class LoginServiceImplTest {
         // when
         // then
         Assertions.assertThrows(InternalAuthenticationServiceException.class, () -> {
-            loginService.tokenLogin(requestDto);
+            loginService.login(requestDto);
         });
     }
 
@@ -87,7 +88,7 @@ class LoginServiceImplTest {
         // when
         // then
         Assertions.assertThrows(BadCredentialsException.class, () -> {
-            loginService.tokenLogin(requestDto);
+            loginService.login(requestDto);
         });
     }
 
@@ -104,7 +105,7 @@ class LoginServiceImplTest {
         // then
 //        Assertions.assertThrows(DeletedEntityException.class, () -> {
         Assertions.assertThrows(InternalAuthenticationServiceException.class, () -> {
-            loginService.tokenLogin(requestDto);
+            loginService.login(requestDto);
         });
     }
 
@@ -118,7 +119,23 @@ class LoginServiceImplTest {
                 .build();
 
         // when
-        TokenDto result = loginService.tokenLogin(requestDto);
+        TokenDto result = loginService.login(requestDto);
+
+        // then
+        assertThat(result.getAccessToken()).isEqualTo("accessToken");
+        assertThat(result.getGrantType()).isEqualTo("bearer");
+        assertThat(result.getRefreshToken()).isEqualTo("refreshToken");
+    }
+
+    @Test
+    @DisplayName("새토큰 발행")
+    void successNewToken(){
+        // given
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        TokenDto result = loginService.getNewToken();
 
         // then
         assertThat(result.getAccessToken()).isEqualTo("accessToken");
