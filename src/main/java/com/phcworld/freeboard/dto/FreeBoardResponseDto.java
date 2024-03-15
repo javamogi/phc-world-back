@@ -2,16 +2,15 @@ package com.phcworld.freeboard.dto;
 
 import com.phcworld.answer.dto.FreeBoardAnswerResponseDto;
 import com.phcworld.freeboard.domain.FreeBoard;
-import com.phcworld.user.dto.UserResponseDto;
+import com.phcworld.user.controller.port.UserResponse;
 import lombok.Builder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Builder
 public record FreeBoardResponseDto(
         Long id,
-        UserResponseDto writer,
+        UserResponse writer,
         String title,
         String contents,
         String createDate,
@@ -23,7 +22,7 @@ public record FreeBoardResponseDto(
     public static FreeBoardResponseDto of(FreeBoard freeBoard){
         return FreeBoardResponseDto.builder()
                 .id(freeBoard.getId())
-                .writer(UserResponseDto.of(freeBoard.getWriter()))
+                .writer(UserResponse.from(freeBoard.getWriter().toModel()))
                 .title(freeBoard.getTitle())
                 .contents(freeBoard.getContents())
                 .createDate(freeBoard.getFormattedCreateDate())
@@ -39,7 +38,7 @@ public record FreeBoardResponseDto(
     public static FreeBoardResponseDto of(FreeBoardSelectDto freeBoard){
         return FreeBoardResponseDto.builder()
                 .id(freeBoard.getId())
-                .writer(UserResponseDto.of(freeBoard.getWriter()))
+                .writer(UserResponse.from(freeBoard.getWriter().toModel()))
                 .title(freeBoard.getTitle())
                 .contents(freeBoard.getContents())
                 .createDate(freeBoard.getFormattedCreateDate())

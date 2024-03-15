@@ -4,11 +4,11 @@ import com.phcworld.answer.domain.FreeBoardAnswer;
 import com.phcworld.answer.dto.FreeBoardAnswerRequestDto;
 import com.phcworld.answer.dto.FreeBoardAnswerResponseDto;
 import com.phcworld.common.dto.SuccessResponseDto;
-import com.phcworld.exception.model.NotFoundException;
-import com.phcworld.exception.model.NotMatchUserException;
+import com.phcworld.common.exception.model.NotFoundException;
+import com.phcworld.common.exception.model.NotMatchUserException;
 import com.phcworld.freeboard.domain.FreeBoard;
 import com.phcworld.user.domain.Authority;
-import com.phcworld.user.domain.User;
+import com.phcworld.user.infrastructure.UserEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,13 +27,13 @@ class FreeBoardAnswerServiceTest {
     @Mock
     private FreeBoardAnswerService answerService;
 
-    private static User user;
+    private static UserEntity user;
 
     private static FreeBoard board;
 
     @BeforeAll
     static void 회원_초기화(){
-        user = User.builder()
+        user = UserEntity.builder()
                 .id(1L)
                 .email("test@test.test")
                 .password("test")

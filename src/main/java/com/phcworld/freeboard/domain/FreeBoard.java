@@ -1,9 +1,8 @@
 package com.phcworld.freeboard.domain;
 
 import com.phcworld.answer.domain.FreeBoardAnswer;
-import com.phcworld.freeboard.dto.FreeBoardRequestDto;
-import com.phcworld.user.domain.User;
-import com.phcworld.utils.LocalDateTimeUtils;
+import com.phcworld.user.infrastructure.UserEntity;
+import com.phcworld.common.utils.LocalDateTimeUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -45,7 +44,7 @@ public class FreeBoard {
 
 	@ManyToOne
 	@JoinColumn(foreignKey = @ForeignKey(name = "fk_freeBoard_writer"))
-	private User writer;
+	private UserEntity writer;
 
 	private String title;
 

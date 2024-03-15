@@ -1,14 +1,13 @@
 package com.phcworld.freeboard.service;
 
 import com.phcworld.common.dto.SuccessResponseDto;
-import com.phcworld.exception.model.DuplicationException;
-import com.phcworld.exception.model.NotFoundException;
-import com.phcworld.exception.model.UnauthorizedException;
+import com.phcworld.common.exception.model.NotFoundException;
+import com.phcworld.common.exception.model.UnauthorizedException;
 import com.phcworld.freeboard.domain.FreeBoard;
 import com.phcworld.freeboard.dto.*;
 import com.phcworld.user.domain.Authority;
-import com.phcworld.user.domain.User;
-import com.phcworld.user.dto.UserResponseDto;
+import com.phcworld.user.infrastructure.UserEntity;
+import com.phcworld.user.controller.port.UserResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,11 +30,11 @@ class FreeBoardServiceTest {
     @Mock
     private FreeBoardService freeBoardService;
 
-    private static User user;
+    private static UserEntity user;
 
     @BeforeAll
     static void 회원_초기화(){
-        user = User.builder()
+        user = UserEntity.builder()
                 .id(1L)
                 .email("test@test.test")
                 .password("test")
@@ -110,7 +109,7 @@ class FreeBoardServiceTest {
         Map<String, Object> map = new HashMap<>();
         FreeBoardResponseDto responseDto = FreeBoardResponseDto.builder()
                 .id(1L)
-                .writer(UserResponseDto.of(user))
+                .writer(UserResponse.from(user.toModel()))
                 .title("title")
                 .contents("contents")
                 .createDate("방금전")
@@ -143,7 +142,7 @@ class FreeBoardServiceTest {
                 .build();
         FreeBoardResponseDto responseDto = FreeBoardResponseDto.builder()
                 .id(1L)
-                .writer(UserResponseDto.of(user))
+                .writer(UserResponse.from(user.toModel()))
                 .title("title")
                 .contents("contents")
                 .createDate("방금전")

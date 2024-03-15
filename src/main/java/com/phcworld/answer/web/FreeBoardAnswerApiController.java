@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/freeboards/answers")
+@RequestMapping("/freeboards/answers")
 @RequiredArgsConstructor
 public class FreeBoardAnswerApiController {
 	

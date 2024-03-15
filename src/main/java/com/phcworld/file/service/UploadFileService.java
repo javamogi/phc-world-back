@@ -1,10 +1,8 @@
 package com.phcworld.file.service;
 
-import com.phcworld.exception.model.NotFoundException;
 import com.phcworld.file.domain.FileType;
 import com.phcworld.file.domain.UploadFile;
 import com.phcworld.file.repository.UploadFileRepository;
-import com.phcworld.user.dto.UserRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Base64;
 import java.util.UUID;
 
