@@ -1,7 +1,7 @@
 package com.phcworld.answer.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.phcworld.freeboard.domain.FreeBoard;
+import com.phcworld.freeboard.infrastructure.FreeBoardEntity;
 import com.phcworld.user.infrastructure.UserEntity;
 import com.phcworld.common.utils.LocalDateTimeUtils;
 import jakarta.persistence.*;
@@ -34,8 +34,8 @@ public class FreeBoardAnswer {
 	private UserEntity writer;
 
 	@ManyToOne
-	@JoinColumn(foreignKey = @ForeignKey(name = "fk_freeBoardAnswer_to_freeBoard"), nullable = false)
-	private FreeBoard freeBoard;
+	@JoinColumn(name = "free_board_id", foreignKey = @ForeignKey(name = "fk_freeBoardAnswer_to_freeBoard"), nullable = false)
+	private FreeBoardEntity freeBoardEntity;
 	
 	@Lob
 	private String contents;

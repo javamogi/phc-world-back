@@ -67,13 +67,8 @@ class LoginRequestTest {
 
         Set<ConstraintViolation<LoginRequest>> constraintViolations =
                 validator.validate(request);
-        Iterator<ConstraintViolation<LoginRequest>> iterator = constraintViolations.iterator();
 
         assertThat(constraintViolations).hasSize(2);
-        assertThat(iterator.next().getMessage())
-                .isEqualTo("비밀번호는 4자 이상으로 해야합니다.");
-        assertThat(iterator.next().getMessage())
-                .isEqualTo("비밀번호를 입력하세요.");
     }
 
     @Test

@@ -6,7 +6,7 @@ import com.phcworld.answer.dto.FreeBoardAnswerResponseDto;
 import com.phcworld.common.dto.SuccessResponseDto;
 import com.phcworld.common.exception.model.NotFoundException;
 import com.phcworld.common.exception.model.NotMatchUserException;
-import com.phcworld.freeboard.domain.FreeBoard;
+import com.phcworld.freeboard.infrastructure.FreeBoardEntity;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.infrastructure.UserEntity;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +29,7 @@ class FreeBoardAnswerServiceTest {
 
     private static UserEntity user;
 
-    private static FreeBoard board;
+    private static FreeBoardEntity board;
 
     @BeforeAll
     static void 회원_초기화(){
@@ -43,7 +43,7 @@ class FreeBoardAnswerServiceTest {
                 .createDate(LocalDateTime.now())
                 .build();
 
-        board = FreeBoard.builder()
+        board = FreeBoardEntity.builder()
                 .id(1L)
                 .writer(user)
                 .title("board title")
@@ -61,7 +61,7 @@ class FreeBoardAnswerServiceTest {
         FreeBoardAnswer freeBoardAnswer = FreeBoardAnswer.builder()
                 .id(1L)
                 .writer(user)
-                .freeBoard(board)
+                .freeBoardEntity(board)
                 .contents(request.contents())
                 .build();
 
@@ -89,7 +89,7 @@ class FreeBoardAnswerServiceTest {
         FreeBoardAnswer freeBoardAnswer = FreeBoardAnswer.builder()
                 .id(1L)
                 .writer(user)
-                .freeBoard(board)
+                .freeBoardEntity(board)
                 .contents("answer contents")
                 .build();
 
@@ -117,7 +117,7 @@ class FreeBoardAnswerServiceTest {
         FreeBoardAnswer freeBoardAnswer = FreeBoardAnswer.builder()
                 .id(1L)
                 .writer(user)
-                .freeBoard(board)
+                .freeBoardEntity(board)
                 .contents(request.contents())
                 .build();
 

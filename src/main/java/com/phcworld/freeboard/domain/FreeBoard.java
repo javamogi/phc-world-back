@@ -1,124 +1,85 @@
 package com.phcworld.freeboard.domain;
 
 import com.phcworld.answer.domain.FreeBoardAnswer;
-import com.phcworld.user.infrastructure.UserEntity;
-import com.phcworld.common.utils.LocalDateTimeUtils;
-import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.Accessors;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import com.phcworld.answer.dto.FreeBoardAnswerResponseDto;
+import com.phcworld.freeboard.domain.dto.FreeBoardRequest;
+import com.phcworld.user.domain.Authority;
+import com.phcworld.user.domain.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
-@Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-@Accessors(chain = true)
-@EntityListeners(AuditingEntityListener.class)
-@DynamicUpdate
-@DynamicInsert
-@Table(name = "free_board",
-		indexes = {@Index(name = "idx__create_date", columnList = "createDate"),
-				@Index(name = "idx__writer_id_create_date", columnList = "writer_id, createDate")})
-//@SequenceGenerator(
-//		name = "BOARD_SEQ_GENERATOR",
-//		sequenceName = "BOARD_SEQ",
-//		initialValue = 1, allocationSize = 10000
-//)
+@AllArgsConstructor
 public class FreeBoard {
+    private Long id;
+    private User writer;
+    private String title;
+    private String contents;
+    private LocalDateTime createDate;
+    private LocalDateTime updateDate;
+    private int count;
+    private boolean isDeleted;
+    private boolean isModifyAuthority;
+    private boolean isDeleteAuthority;
+    private List<FreeBoardAnswer> answers;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-//	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BOARD_SEQ_GENERATOR")
-	private Long id;
+    public static FreeBoard from(FreeBoardRequest request, User writer){
+        return FreeBoard.builder()
+                .writer(writer)
+                .title(request.title())
+                .contents(request.contents())
+                .build();
+    }
 
-	@ManyToOne
-	@JoinColumn(foreignKey = @ForeignKey(name = "fk_freeBoard_writer"))
-	private UserEntity writer;
+    public int getCountOfAnswer() {
+        return answers.size();
+    }
 
-	private String title;
+    public boolean isNew() {
+        final int HOUR_OF_DAY = 24;
+        final int MINUTES_OF_HOUR = 60;
 
-	@Lob
-	private String contents;
-
-	@CreatedDate
-	private LocalDateTime createDate;
-	
-	@LastModifiedDate
-	private LocalDateTime updateDate;
-
-	@ColumnDefault("0")
-	@Builder.Default
-	private Integer count = 0;
-
-	@ColumnDefault("false")
-	private Boolean isDeleted = false;
-
-	@OneToMany(mappedBy = "freeBoard", cascade = CascadeType.REMOVE)
-	private List<FreeBoardAnswer> freeBoardAnswers;
-
-//	public String getCountOfAnswer() {
-//		if (this.freeBoardAnswers == null|| this.freeBoardAnswers.size() == 0) {
-//			return "";
-//		}
-//		return "[" + freeBoardAnswers.size() + "]";
-//	}
-
-	public Integer getCountOfAnswer() {
-		if (this.freeBoardAnswers == null) {
-			return 0;
-		}
-		return freeBoardAnswers.size();
-	}
-
-	public void addCount() {
-		this.count += 1;
-	}
-
-	public String getFormattedCreateDate() {
-		return LocalDateTimeUtils.getTime(createDate);
-	}
-	
-	public String getFormattedUpdateDate() {
-		return LocalDateTimeUtils.getTime(updateDate);
-	}
-
-	public void update(String title, String contents) {
-		this.title = title;
-		this.contents = contents;
-	}
-
-	public Boolean isNew(){
-		final int HOUR_OF_DAY = 24;
-		final int MINUTES_OF_HOUR = 60;
-
-		long createdDateAndNowDifferenceMinutes =
-				Duration.between(createDate == null ? LocalDateTime.now() : createDate, LocalDateTime.now()).toMinutes();
+        long createdDateAndNowDifferenceMinutes =
+                Duration.between(createDate == null ? LocalDateTime.now() : createDate, LocalDateTime.now()).toMinutes();
         return (createdDateAndNowDifferenceMinutes / MINUTES_OF_HOUR) < HOUR_OF_DAY;
-	}
+    }
 
-	public boolean matchUser(Long userId) {
-		return !this.writer.getId().equals(userId);
-	}
+    public List<FreeBoardAnswerResponseDto> getAnswers(){
+        return answers.stream()
+                .map(FreeBoardAnswerResponseDto::of)
+                .toList();
+    }
 
-	public void delete() {
-		this.isDeleted = true;
-	}
+    public boolean matchUser(Long userId) {
+        return !this.writer.getId().equals(userId);
+    }
 
-	public List<FreeBoardAnswer> getFreeBoardAnswers() {
-		if(freeBoardAnswers == null){
-			return new ArrayList<>();
-		}
-		return freeBoardAnswers;
-	}
+    public void addCount() {
+        this.count += 1;
+    }
+
+    public void update(String title, String contents) {
+        this.title = title;
+        this.contents = contents;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
+
+    public void setAuthority(Long userId, Authority authorities) {
+        if(!matchUser(userId)){
+            isModifyAuthority = true;
+            isDeleteAuthority = true;
+        }
+        if(authorities == Authority.ROLE_ADMIN){
+            isDeleteAuthority = true;
+        }
+    }
 }

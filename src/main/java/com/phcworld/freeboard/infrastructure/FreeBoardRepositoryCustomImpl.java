@@ -1,9 +1,8 @@
-package com.phcworld.freeboard.repository;
+package com.phcworld.freeboard.infrastructure;
 
 import com.phcworld.answer.domain.QFreeBoardAnswer;
-import com.phcworld.freeboard.domain.QFreeBoard;
-import com.phcworld.freeboard.dto.FreeBoardSearchDto;
-import com.phcworld.freeboard.dto.FreeBoardSelectDto;
+import com.phcworld.freeboard.domain.dto.FreeBoardSearch;
+import com.phcworld.freeboard.infrastructure.dto.FreeBoardSelect;
 import com.phcworld.user.infrastructure.QUserEntity;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
@@ -26,12 +25,12 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom{
     private final JPAQueryFactory queryFactory;
-    QFreeBoard freeBoard = QFreeBoard.freeBoard;
+    QFreeBoardEntity freeBoard = QFreeBoardEntity.freeBoardEntity;
     QUserEntity user = QUserEntity.userEntity;
     QFreeBoardAnswer answer = QFreeBoardAnswer.freeBoardAnswer;
 
     @Override
-    public List<FreeBoardSelectDto> findByKeyword(FreeBoardSearchDto searchDto, Pageable pageable){
+    public List<FreeBoardSelect> findByKeyword(FreeBoardSearch searchDto, Pageable pageable){
         List<OrderSpecifier> orders = getOrderSpecifier(pageable);
 
         List<Long> ids = queryFactory
@@ -49,7 +48,7 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom{
                 .fetch();
 
         return queryFactory
-                .select(Projections.fields(FreeBoardSelectDto.class,
+                .select(Projections.fields(FreeBoardSelect.class,
                         freeBoard.id.as("id"),
                         user.as("writer"),
                         freeBoard.title,
@@ -57,11 +56,12 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom{
                         freeBoard.createDate,
                         freeBoard.updateDate,
                         freeBoard.count,
+                        freeBoard.isDeleted,
                         ExpressionUtils.as(
                                 JPAExpressions
                                         .select(answer.count())
                                         .from(answer)
-                                        .where(answer.freeBoard.eq(freeBoard)), "countOfAnswer")))
+                                        .where(answer.freeBoardEntity.eq(freeBoard)), "countOfAnswer")))
                 .from(freeBoard)
                 .leftJoin(freeBoard.writer, user)
                 .where(freeBoard.id.in(ids))
@@ -69,7 +69,7 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom{
                 .fetch();
     }
 
-    private BooleanExpression findByTitle(FreeBoardSearchDto searchDto){
+    private BooleanExpression findByTitle(FreeBoardSearch searchDto){
         if(Objects.isNull(searchDto.searchType())
                 || searchDto.keyword().isEmpty()
                 || !searchDto.searchType().equals(0)){
@@ -78,7 +78,7 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom{
         return freeBoard.title.contains(searchDto.keyword());
     }
 
-    private BooleanBuilder findContents(FreeBoardSearchDto searchDto){
+    private BooleanBuilder findContents(FreeBoardSearch searchDto){
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if(Objects.isNull(searchDto.searchType())
                 || searchDto.keyword().isEmpty()
@@ -88,7 +88,7 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom{
         return booleanBuilder.or(freeBoard.contents.contains(searchDto.keyword()));
     }
 
-    private BooleanBuilder findUserName(FreeBoardSearchDto searchDto){
+    private BooleanBuilder findUserName(FreeBoardSearch searchDto){
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if(Objects.isNull(searchDto.searchType())
                 || searchDto.keyword().isEmpty()

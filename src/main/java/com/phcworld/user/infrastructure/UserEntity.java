@@ -58,6 +58,7 @@ public class UserEntity implements Serializable {
 		return User.builder()
 				.id(id)
 				.email(email)
+				.password(password)
 				.name(name)
 				.authority(authority)
 				.profileImage(profileImage)

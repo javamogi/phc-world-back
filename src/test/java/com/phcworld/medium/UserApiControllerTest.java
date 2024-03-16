@@ -7,6 +7,7 @@ import com.phcworld.user.domain.dto.LoginRequest;
 import com.phcworld.user.domain.dto.UserRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@ExtendWith(SpringExtension.class)
 class UserApiControllerTest {
 
     @Autowired
@@ -49,18 +52,18 @@ class UserApiControllerTest {
 
     @Test
     void 회원가입_성공() throws Exception {
-        this.mvc.perform(post("/api/users")
+        this.mvc.perform(post("/users")
                         .with(csrf())
                         .param("email", "abcdefg@test.test")
                         .param("password", "abcde")
                         .param("name", "에이비씨디이"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test
     void 회원가입_실패_중복_이메일() throws Exception {
-        this.mvc.perform(post("/api/users")
+        this.mvc.perform(post("/users")
                         .with(csrf())
                         .param("email", "test@test.test")
                         .param("password", "abcde")
@@ -71,7 +74,7 @@ class UserApiControllerTest {
 
     @Test
     void 회원가입_실패_모든_요소_빈값() throws Exception {
-        this.mvc.perform(post("/api/users")
+        this.mvc.perform(post("/users")
                         .with(csrf())
                         .param("email", "")
                         .param("password", "")
@@ -83,7 +86,7 @@ class UserApiControllerTest {
 
     @Test
     void 회원가입_실패_이메일_입력_없음() throws Exception {
-        this.mvc.perform(post("/api/users")
+        this.mvc.perform(post("/users")
                         .with(csrf())
                         .param("email", "")
                         .param("password", "password")
@@ -95,7 +98,7 @@ class UserApiControllerTest {
 
     @Test
     void 회원가입_실패_이메일_형식_아님() throws Exception {
-        this.mvc.perform(post("/api/users")
+        this.mvc.perform(post("/users")
                         .with(csrf())
                         .param("email", "test")
                         .param("password", "password")
@@ -107,7 +110,7 @@ class UserApiControllerTest {
 
     @Test
     void 회원가입_실패_비밀번호_입력_없음() throws Exception {
-        this.mvc.perform(post("/api/users")
+        this.mvc.perform(post("/users")
                         .with(csrf())
                         .param("email", "testttt@test.test")
                         .param("password", "")
@@ -119,7 +122,7 @@ class UserApiControllerTest {
 
     @Test
     void 회원가입_실패_비밀번호_입력_최소입력_미만() throws Exception {
-        this.mvc.perform(post("/api/users")
+        this.mvc.perform(post("/users")
                         .with(csrf())
                         .param("email", "testttt@test.test")
                         .param("password", "tes")
@@ -131,7 +134,7 @@ class UserApiControllerTest {
 
     @Test
     void 회원가입_실패_이름_입력_없음() throws Exception {
-        this.mvc.perform(post("/api/users")
+        this.mvc.perform(post("/users")
                         .with(csrf())
                         .param("email", "testttt@test.test")
                         .param("password", "password")
@@ -143,7 +146,7 @@ class UserApiControllerTest {
 
     @Test
     void 회원가입_실패_이름_특수문자_입력() throws Exception {
-        this.mvc.perform(post("/api/users")
+        this.mvc.perform(post("/users")
                         .with(csrf())
                         .param("email", "testttt@test.test")
                         .param("password", "password")
@@ -155,7 +158,7 @@ class UserApiControllerTest {
 
     @Test
     void 회원가입_실패_이름_최소입력_미만() throws Exception {
-        this.mvc.perform(post("/api/users")
+        this.mvc.perform(post("/users")
                         .with(csrf())
                         .param("email", "testttt@test.test")
                         .param("password", "password")
@@ -167,7 +170,7 @@ class UserApiControllerTest {
 
     @Test
     void 회원가입_실패_이름_최대입력_초과() throws Exception {
-        this.mvc.perform(post("/api/users")
+        this.mvc.perform(post("/users")
                         .with(csrf())
                         .param("email", "testttt@test.test")
                         .param("password", "password")
@@ -184,7 +187,7 @@ class UserApiControllerTest {
                 .password("testt")
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
-        this.mvc.perform(post("/api/users/login")
+        this.mvc.perform(post("/users/login")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
@@ -200,7 +203,7 @@ class UserApiControllerTest {
                 .password("test")
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
-        this.mvc.perform(post("/api/users/login")
+        this.mvc.perform(post("/users/login")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
@@ -216,7 +219,7 @@ class UserApiControllerTest {
                 .password("test3")
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
-        this.mvc.perform(post("/api/users/login")
+        this.mvc.perform(post("/users/login")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
@@ -232,7 +235,7 @@ class UserApiControllerTest {
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
-        this.mvc.perform(post("/api/users/login")
+        this.mvc.perform(post("/users/login")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
@@ -251,7 +254,7 @@ class UserApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
 
-        this.mvc.perform(get("/api/users/userInfo")
+        this.mvc.perform(get("/users/userInfo")
                         .with(csrf())
                         .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
@@ -272,7 +275,7 @@ class UserApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
 
-        this.mvc.perform(get("/api/users/{id}", 2L)
+        this.mvc.perform(get("/users/{id}", 2L)
                         .with(csrf())
                         .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
@@ -308,7 +311,7 @@ class UserApiControllerTest {
 
         String request = objectMapper.writeValueAsString(userRequestDto);
 
-        this.mvc.perform(patch("/api/users")
+        this.mvc.perform(patch("/users")
                         .with(csrf())
                         .header("Authorization", "Bearer " + accessToken)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -340,7 +343,7 @@ class UserApiControllerTest {
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
-        this.mvc.perform(patch("/api/users")
+        this.mvc.perform(patch("/users")
                         .with(csrf())
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -360,12 +363,11 @@ class UserApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
 
-        this.mvc.perform(delete("/api/users/{id}", 1L)
+        this.mvc.perform(delete("/users/{id}", 1L)
                         .with(csrf())
                         .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
-                .andExpect(jsonPath("$.statusCode").value(200))
-                .andExpect(jsonPath("$.message").value("삭제 성공"))
+                .andExpect(jsonPath("$.isDeleted").value(true))
                 .andExpect(status().isOk());
     }
 
@@ -380,7 +382,7 @@ class UserApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
 
-        this.mvc.perform(delete("/api/users/{id}", 2L)
+        this.mvc.perform(delete("/users/{id}", 2L)
                         .with(csrf())
                         .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
@@ -398,7 +400,7 @@ class UserApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = tokenProvider.generateAccessToken(authentication, now);
 
-        this.mvc.perform(delete("/api/users/{id}", 1L)
+        this.mvc.perform(delete("/users/{id}", 1L)
                         .with(csrf())
                         .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
@@ -416,7 +418,7 @@ class UserApiControllerTest {
         long now = (new Date()).getTime();
         String refreshToken = tokenProvider.generateRefreshToken(authentication, now);
 
-        this.mvc.perform(get("/api/users/newToken")
+        this.mvc.perform(get("/users/newToken")
                         .with(csrf())
                         .header("Authorization", "Bearer " + refreshToken))
                 .andDo(print())
