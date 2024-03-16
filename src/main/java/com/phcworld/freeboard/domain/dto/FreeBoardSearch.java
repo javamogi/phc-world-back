@@ -1,9 +1,9 @@
-package com.phcworld.freeboard.dto;
+package com.phcworld.freeboard.domain.dto;
 
 import lombok.Builder;
 
 @Builder
-public record FreeBoardSearchDto(
+public record FreeBoardSearch(
         int pageNum,
         int pageSize,
         String keyword,

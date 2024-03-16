@@ -8,8 +8,8 @@ import com.phcworld.common.dto.SuccessResponseDto;
 import com.phcworld.common.exception.model.NotFoundException;
 import com.phcworld.common.exception.model.NotMatchUserException;
 import com.phcworld.common.exception.model.UnauthorizedException;
-import com.phcworld.freeboard.domain.FreeBoard;
-import com.phcworld.freeboard.repository.FreeBoardRepository;
+import com.phcworld.freeboard.infrastructure.FreeBoardEntity;
+import com.phcworld.freeboard.infrastructure.FreeBoardJpaRepository;
 import com.phcworld.common.security.utils.SecurityUtil;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.infrastructure.UserEntity;
@@ -24,21 +24,21 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FreeBoardAnswerService {
 	
-	private final FreeBoardRepository freeBoardRepository;
+	private final FreeBoardJpaRepository freeBoardJpaRepository;
 
 	private final FreeBoardAnswerRepository freeBoardAnswerRepository;
 
 	private final UserJpaRepository userRepository;
 	
 	public FreeBoardAnswerResponseDto register(FreeBoardAnswerRequestDto request) {
-		FreeBoard freeBoard = freeBoardRepository.findById(request.boardId())
+		FreeBoardEntity freeBoardEntity = freeBoardJpaRepository.findById(request.boardId())
 				.orElseThrow(NotFoundException::new);
 		Long userId = SecurityUtil.getCurrentMemberId();
 		UserEntity user = userRepository.findById(userId)
 				.orElseThrow(NotFoundException::new);
 		FreeBoardAnswer freeBoardAnswer = FreeBoardAnswer.builder()
 				.writer(user)
-				.freeBoard(freeBoard)
+				.freeBoardEntity(freeBoardEntity)
 				.contents(request.contents())
 				.build();
 		

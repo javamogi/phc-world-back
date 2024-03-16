@@ -1,10 +1,10 @@
-package com.phcworld.freeboard.dto;
+package com.phcworld.freeboard.domain.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 @Builder
-public record FreeBoardRequestDto(
+public record FreeBoardRequest(
         Long id,
         @NotBlank(message = "제목을 입력하세요.")
         String title,

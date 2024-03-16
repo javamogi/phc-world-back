@@ -1,7 +1,7 @@
-package com.phcworld.freeboard.web;
+package com.phcworld.freeboard.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.phcworld.freeboard.dto.FreeBoardRequestDto;
+import com.phcworld.freeboard.domain.dto.FreeBoardRequest;
 import com.phcworld.common.jwt.TokenProviderImpl;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.common.utils.FileConvertUtils;
@@ -63,7 +63,7 @@ class FreeBoardApiControllerTest {
 
     @Test
     void 게시글_등록_성공() throws Exception {
-        FreeBoardRequestDto requestDto = FreeBoardRequestDto.builder()
+        FreeBoardRequest requestDto = FreeBoardRequest.builder()
                 .title("title")
                 .contents("contents")
                 .build();
@@ -84,7 +84,7 @@ class FreeBoardApiControllerTest {
         contents = "<p><img src=\"" + contents + "\"></p>";
         String contents2 = FileConvertUtils.getFileData("PHC-WORLD.png");
         contents2 = "<p><img src=\"" + contents2 + "\"></p>";
-        FreeBoardRequestDto requestDto = FreeBoardRequestDto.builder()
+        FreeBoardRequest requestDto = FreeBoardRequest.builder()
                 .title("title")
                 .contents(contents + contents2)
                 .build();
@@ -136,7 +136,7 @@ class FreeBoardApiControllerTest {
     void 게시글_수정_성공() throws Exception {
         String contents = FileConvertUtils.getFileData("blank-profile-picture.png");
         contents = "<p><img src=\"" + contents + "\"></p>";
-        FreeBoardRequestDto requestDto = FreeBoardRequestDto.builder()
+        FreeBoardRequest requestDto = FreeBoardRequest.builder()
                 .id(1L)
                 .title("제목")
                 .contents(contents)
@@ -154,7 +154,7 @@ class FreeBoardApiControllerTest {
 
     @Test
     void 게시글_수정_실패_권한_없음() throws Exception {
-        FreeBoardRequestDto requestDto = FreeBoardRequestDto.builder()
+        FreeBoardRequest requestDto = FreeBoardRequest.builder()
                 .id(1L)
                 .title("제목")
                 .contents("내용")

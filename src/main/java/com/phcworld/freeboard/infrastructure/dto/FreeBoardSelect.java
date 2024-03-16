@@ -1,4 +1,4 @@
-package com.phcworld.freeboard.dto;
+package com.phcworld.freeboard.infrastructure.dto;
 
 import com.phcworld.user.infrastructure.UserEntity;
 import com.phcworld.common.utils.LocalDateTimeUtils;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FreeBoardSelectDto {
+public class FreeBoardSelect {
 
     private Long id;
     private UserEntity writer;
@@ -21,6 +21,7 @@ public class FreeBoardSelectDto {
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
     private Integer count;
+    private boolean isDeleted;
     private Long countOfAnswer;
 
     public String getFormattedCreateDate() {
