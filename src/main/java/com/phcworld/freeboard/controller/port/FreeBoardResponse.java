@@ -35,19 +35,6 @@ public record FreeBoardResponse(
                         .toList())
                 .build();
     }
-    public static FreeBoardResponse from(FreeBoardSelect freeBoard){
-        return FreeBoardResponse.builder()
-                .id(freeBoard.getId())
-                .writer(UserResponse.from(freeBoard.getWriter().toModel()))
-                .title(freeBoard.getTitle())
-                .contents(freeBoard.getContents())
-                .createDate(freeBoard.getFormattedCreateDate())
-                .count(freeBoard.getCount())
-                .countOfAnswer(freeBoard.getCountOfAnswer())
-                .isNew(freeBoard.isNew())
-                .build();
-    }
-
     public static FreeBoardResponse from(FreeBoard freeBoard) {
         return FreeBoardResponse.builder()
                 .id(freeBoard.getId())

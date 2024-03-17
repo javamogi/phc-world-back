@@ -45,7 +45,10 @@ public class FreeBoardRepositoryImpl implements FreeBoardRepository {
     }
 
     @Override
-    public List<FreeBoardSelect> findByKeyword(FreeBoardSearch searchDto, Pageable pageable) {
-        return freeBoardJpaRepository.findByKeyword(searchDto, pageable);
+    public List<FreeBoard> findByKeyword(FreeBoardSearch searchDto, Pageable pageable) {
+        return freeBoardJpaRepository.findByKeyword(searchDto, pageable)
+                .stream()
+                .map(FreeBoard::from)
+                .toList();
     }
 }
