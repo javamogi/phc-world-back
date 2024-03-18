@@ -14,6 +14,7 @@ import lombok.Getter;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -47,9 +48,9 @@ public class FreeBoard {
     }
 
     public List<FreeBoardAnswerResponseDto> getAnswers(){
-        return answers.stream()
+        return answers != null ? answers.stream()
                 .map(FreeBoardAnswerResponseDto::of)
-                .toList();
+                .toList() : new ArrayList<>();
     }
 
     public boolean matchUser(Long userId) {
@@ -91,9 +92,6 @@ public class FreeBoard {
     }
 
     public FreeBoard delete() {
-        if(isDeleted){
-            throw new DeletedEntityException();
-        }
         return FreeBoard.builder()
                 .id(id)
                 .title(title)

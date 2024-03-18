@@ -19,5 +19,5 @@ public interface FreeBoardRepository {
 
     List<FreeBoard> findAllByFetch();
 
-    List<FreeBoardSelect> findByKeyword(FreeBoardSearch searchDto, Pageable pageable);
+    List<FreeBoard> findByKeyword(FreeBoardSearch searchDto, Pageable pageable);
 }

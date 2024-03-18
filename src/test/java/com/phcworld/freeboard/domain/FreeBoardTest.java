@@ -244,40 +244,6 @@ class FreeBoardTest {
     }
 
     @Test
-    @DisplayName("이미 삭제되었으면 에러를 던진다.")
-    void isDeleted(){
-        // given
-        LocalDateTime time = LocalDateTime.of(2024, 3, 13, 11, 11, 11, 111111);
-        User user = User.builder()
-                .id(1L)
-                .email("test@test.test")
-                .name("테스트")
-                .password("test2")
-                .isDeleted(false)
-                .authority(Authority.ROLE_USER)
-                .profileImage("blank-profile-picture.png")
-                .createDate(time)
-                .build();
-        FreeBoard freeBoard = FreeBoard.builder()
-                .id(1L)
-                .title("제목")
-                .contents("내용")
-                .countOfAnswer(0)
-                .count(0)
-                .writer(user)
-                .createDate(time)
-                .updateDate(time)
-                .isDeleteAuthority(false)
-                .isModifyAuthority(false)
-                .isDeleted(true)
-                .build();
-
-        // when
-        // then
-        Assertions.assertThrows(DeletedEntityException.class, freeBoard::delete);
-    }
-
-    @Test
     @DisplayName("작성자는 수정,삭제 권한을 가질수 있다.")
     void getAuthoritiesWhenEqualWriter(){
         // given
