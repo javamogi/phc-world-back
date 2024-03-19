@@ -5,6 +5,7 @@ import com.phcworld.common.exception.model.NotFoundException;
 import com.phcworld.common.exception.model.UnauthorizedException;
 import com.phcworld.common.utils.LocalDateTimeUtils;
 import com.phcworld.freeboard.controller.port.FreeBoardResponse;
+import com.phcworld.freeboard.controller.port.FreeBoardResponseWitAuthority;
 import com.phcworld.freeboard.domain.FreeBoard;
 import com.phcworld.freeboard.domain.dto.FreeBoardRequest;
 import com.phcworld.freeboard.domain.dto.FreeBoardSearch;
@@ -261,7 +262,7 @@ class FreeBoardApiControllerTest {
     }
 
     @Test
-    @DisplayName("회원은 게시글의 id로 게시글을 가져올 수 있다.")
+    @DisplayName("회원은 게시글의 id로 수정,삭제 권한과 함께 게시글을 가져올 수 있다.")
     void getFreeBoard(){
         // given
         LocalDateTime time = LocalDateTime.now();
@@ -295,7 +296,7 @@ class FreeBoardApiControllerTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // when
-        ResponseEntity<FreeBoardResponse> result = testContainer.freeBoardApiController.getFreeBoard(id);
+        ResponseEntity<FreeBoardResponseWitAuthority> result = testContainer.freeBoardApiController.getFreeBoard(id);
 
         // then
         assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
@@ -305,7 +306,9 @@ class FreeBoardApiControllerTest {
         assertThat(result.getBody().contents()).isEqualTo("내용");
         assertThat(result.getBody().count()).isEqualTo(1);
         assertThat(result.getBody().isNew()).isTrue();
-        assertThat(result.getBody().countOfAnswer()).isEqualTo(0);
+        assertThat(result.getBody().isModifyAuthority()).isTrue();
+        assertThat(result.getBody().isDeleteAuthority()).isTrue();
+        assertThat(result.getBody().countOfAnswer()).isZero();
         assertThat(result.getBody().createDate()).isEqualTo(LocalDateTimeUtils.getTime(time));
         assertThat(result.getBody().writer().email()).isEqualTo("test@test.test");
     }

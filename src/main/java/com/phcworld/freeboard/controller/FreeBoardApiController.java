@@ -1,6 +1,7 @@
 package com.phcworld.freeboard.controller;
 
 import com.phcworld.freeboard.controller.port.FreeBoardResponse;
+import com.phcworld.freeboard.controller.port.FreeBoardResponseWitAuthority;
 import com.phcworld.freeboard.controller.port.FreeBoardService;
 import com.phcworld.freeboard.domain.FreeBoard;
 import com.phcworld.freeboard.domain.dto.FreeBoardRequest;
@@ -40,11 +41,11 @@ public class FreeBoardApiController {
     }
 
     @GetMapping("/{freeBoardId}")
-    public ResponseEntity<FreeBoardResponse> getFreeBoard(@PathVariable(name = "freeBoardId") Long freeBoardId){
+    public ResponseEntity<FreeBoardResponseWitAuthority> getFreeBoard(@PathVariable(name = "freeBoardId") Long freeBoardId){
         FreeBoard freeBoard = freeBoardService.getFreeBoard(freeBoardId);
         return ResponseEntity
                 .status(200)
-                .body(FreeBoardResponse.from(freeBoard));
+                .body(FreeBoardResponseWitAuthority.from(freeBoard));
     }
 
     @PatchMapping("")
