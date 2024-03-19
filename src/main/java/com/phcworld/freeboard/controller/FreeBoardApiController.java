@@ -5,6 +5,7 @@ import com.phcworld.freeboard.controller.port.FreeBoardService;
 import com.phcworld.freeboard.domain.FreeBoard;
 import com.phcworld.freeboard.domain.dto.FreeBoardRequest;
 import com.phcworld.freeboard.domain.dto.FreeBoardSearch;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,12 +15,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/freeboards")
 @RequiredArgsConstructor
+@Builder
 public class FreeBoardApiController {
 
     private final FreeBoardService freeBoardService;
 
     @PostMapping("")
-    public ResponseEntity<FreeBoardResponse> registerBoard(@RequestBody FreeBoardRequest request) {
+    public ResponseEntity<FreeBoardResponse> register(@RequestBody FreeBoardRequest request) {
         FreeBoard freeBoard = freeBoardService.register(request);
         return ResponseEntity
                 .status(201)
@@ -27,8 +29,14 @@ public class FreeBoardApiController {
     }
 
     @GetMapping("")
-    public List<FreeBoardResponse> getList(FreeBoardSearch request){
-        return freeBoardService.getSearchList(request);
+    public ResponseEntity<List<FreeBoardResponse>> getList(FreeBoardSearch request){
+        List<FreeBoardResponse> list = freeBoardService.getSearchList(request)
+                .stream()
+                .map(FreeBoardResponse::from)
+                .toList();
+        return ResponseEntity
+                .status(200)
+                .body(list);
     }
 
     @GetMapping("/{freeBoardId}")
@@ -40,7 +48,7 @@ public class FreeBoardApiController {
     }
 
     @PatchMapping("")
-    public ResponseEntity<FreeBoardResponse> updateBoard(@RequestBody FreeBoardRequest request) {
+    public ResponseEntity<FreeBoardResponse> update(@RequestBody FreeBoardRequest request) {
         FreeBoard freeBoard = freeBoardService.update(request);
         return ResponseEntity
                 .status(200)
@@ -48,7 +56,7 @@ public class FreeBoardApiController {
     }
 
     @DeleteMapping("/{freeBoardId}")
-    public ResponseEntity<FreeBoardResponse> deleteBoard(@PathVariable(name = "freeBoardId") Long freeBoardId){
+    public ResponseEntity<FreeBoardResponse> delete(@PathVariable(name = "freeBoardId") Long freeBoardId){
         FreeBoard freeBoard = freeBoardService.delete(freeBoardId);
         return ResponseEntity
                 .status(200)

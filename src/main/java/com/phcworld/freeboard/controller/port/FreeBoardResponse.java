@@ -20,6 +20,7 @@ public record FreeBoardResponse(
         Integer count,
         Integer countOfAnswer,
         Boolean isNew,
+        Boolean isDelete,
         List<FreeBoardAnswerResponseDto> answers
 ) {
     public static FreeBoardResponse from(FreeBoardEntity freeBoardEntity){
@@ -29,6 +30,7 @@ public record FreeBoardResponse(
                 .title(freeBoardEntity.getTitle())
                 .contents(freeBoardEntity.getContents())
                 .count(freeBoardEntity.getCount())
+                .isDelete(freeBoardEntity.getIsDeleted())
                 .answers(freeBoardEntity.getFreeBoardAnswers()
                         .stream()
                         .map(FreeBoardAnswerResponseDto::of)
@@ -45,6 +47,7 @@ public record FreeBoardResponse(
                 .count(freeBoard.getCount())
                 .countOfAnswer(freeBoard.getCountOfAnswer())
                 .isNew(freeBoard.isNew())
+                .isDelete(freeBoard.isDeleted())
                 .answers(freeBoard.getAnswers())
                 .build();
     }
