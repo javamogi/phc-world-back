@@ -20,6 +20,7 @@ public record FreeBoardResponse(
         Integer count,
         Integer countOfAnswer,
         Boolean isNew,
+        Boolean isDelete,
         List<FreeBoardAnswerResponseDto> answers
 ) {
     public static FreeBoardResponse from(FreeBoardEntity freeBoardEntity){
@@ -29,25 +30,13 @@ public record FreeBoardResponse(
                 .title(freeBoardEntity.getTitle())
                 .contents(freeBoardEntity.getContents())
                 .count(freeBoardEntity.getCount())
+                .isDelete(freeBoardEntity.getIsDeleted())
                 .answers(freeBoardEntity.getFreeBoardAnswers()
                         .stream()
                         .map(FreeBoardAnswerResponseDto::of)
                         .toList())
                 .build();
     }
-    public static FreeBoardResponse from(FreeBoardSelect freeBoard){
-        return FreeBoardResponse.builder()
-                .id(freeBoard.getId())
-                .writer(UserResponse.from(freeBoard.getWriter().toModel()))
-                .title(freeBoard.getTitle())
-                .contents(freeBoard.getContents())
-                .createDate(freeBoard.getFormattedCreateDate())
-                .count(freeBoard.getCount())
-                .countOfAnswer(freeBoard.getCountOfAnswer())
-                .isNew(freeBoard.isNew())
-                .build();
-    }
-
     public static FreeBoardResponse from(FreeBoard freeBoard) {
         return FreeBoardResponse.builder()
                 .id(freeBoard.getId())
@@ -58,6 +47,7 @@ public record FreeBoardResponse(
                 .count(freeBoard.getCount())
                 .countOfAnswer(freeBoard.getCountOfAnswer())
                 .isNew(freeBoard.isNew())
+                .isDelete(freeBoard.isDeleted())
                 .answers(freeBoard.getAnswers())
                 .build();
     }

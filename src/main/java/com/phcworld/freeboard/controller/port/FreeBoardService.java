@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface FreeBoardService {
     FreeBoard register(FreeBoardRequest request);
-    List<FreeBoardResponse> getSearchList(FreeBoardSearch search);
+    List<FreeBoard> getSearchList(FreeBoardSearch search);
     FreeBoard getFreeBoard(Long id);
     FreeBoard update(FreeBoardRequest request);
     FreeBoard delete(Long id);

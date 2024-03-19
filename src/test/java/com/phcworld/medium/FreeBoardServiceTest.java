@@ -1,4 +1,4 @@
-package com.phcworld.freeboard.service;
+package com.phcworld.medium;
 
 import com.phcworld.common.exception.model.NotFoundException;
 import com.phcworld.common.exception.model.UnauthorizedException;
@@ -6,6 +6,7 @@ import com.phcworld.freeboard.controller.port.FreeBoardResponse;
 import com.phcworld.freeboard.domain.dto.FreeBoardRequest;
 import com.phcworld.freeboard.domain.dto.FreeBoardSearch;
 import com.phcworld.freeboard.infrastructure.dto.FreeBoardSelect;
+import com.phcworld.freeboard.service.FreeBoardServiceImpl;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.infrastructure.UserEntity;
 import org.junit.jupiter.api.Assertions;
@@ -62,47 +63,47 @@ class FreeBoardServiceTest {
 //        assertThat(response).isEqualTo(freeBoardResponse);
 //    }
 
-    @Test
-    void 게시글_목록_조회(){
-        FreeBoardSearch searchDto = FreeBoardSearch.builder()
-                .pageNum(1)
-                .pageSize(10)
-                .searchType(0)
-                .keyword("test")
-                .build();
-        FreeBoardSelect freeboard1 = FreeBoardSelect.builder()
-                .id(1L)
-                .writer(user)
-                .title("title")
-                .contents("contents")
-                .createDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .count(0)
-                .isDeleted(false)
-                .build();
-
-        FreeBoardSelect freeboard2 = FreeBoardSelect.builder()
-                .id(2L)
-                .writer(user)
-                .title("title")
-                .contents("contents")
-                .createDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .count(0)
-                .isDeleted(false)
-                .build();
-        List<FreeBoardSelect> list = new ArrayList<>();
-        list.add(freeboard1);
-        list.add(freeboard2);
-
-        when(freeBoardService.getSearchList(searchDto)).thenReturn(
-                list.stream()
-                .map(FreeBoardResponse::from)
-                .toList());
-        List<FreeBoardResponse> result = freeBoardService.getSearchList(searchDto);
-        assertThat(result).contains(FreeBoardResponse.from(freeboard1))
-                .contains(FreeBoardResponse.from(freeboard2));
-    }
+//    @Test
+//    void 게시글_목록_조회(){
+//        FreeBoardSearch searchDto = FreeBoardSearch.builder()
+//                .pageNum(1)
+//                .pageSize(10)
+//                .searchType(0)
+//                .keyword("test")
+//                .build();
+//        FreeBoardSelect freeboard1 = FreeBoardSelect.builder()
+//                .id(1L)
+//                .writer(user)
+//                .title("title")
+//                .contents("contents")
+//                .createDate(LocalDateTime.now())
+//                .updateDate(LocalDateTime.now())
+//                .count(0)
+//                .isDeleted(false)
+//                .build();
+//
+//        FreeBoardSelect freeboard2 = FreeBoardSelect.builder()
+//                .id(2L)
+//                .writer(user)
+//                .title("title")
+//                .contents("contents")
+//                .createDate(LocalDateTime.now())
+//                .updateDate(LocalDateTime.now())
+//                .count(0)
+//                .isDeleted(false)
+//                .build();
+//        List<FreeBoardSelect> list = new ArrayList<>();
+//        list.add(freeboard1);
+//        list.add(freeboard2);
+//
+//        when(freeBoardService.getSearchList(searchDto)).thenReturn(
+//                list.stream()
+//                .map(FreeBoardResponse::from)
+//                .toList());
+//        List<FreeBoardResponse> result = freeBoardService.getSearchList(searchDto);
+//        assertThat(result).contains(FreeBoardResponse.from(freeboard1))
+//                .contains(FreeBoardResponse.from(freeboard2));
+//    }
 
 //    @Test
 //    void 게시글_하나_가져오기(){

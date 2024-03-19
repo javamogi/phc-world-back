@@ -1,209 +1,755 @@
 package com.phcworld.freeboard.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phcworld.common.exception.model.DeletedEntityException;
+import com.phcworld.common.exception.model.NotFoundException;
+import com.phcworld.common.exception.model.UnauthorizedException;
+import com.phcworld.common.utils.LocalDateTimeUtils;
+import com.phcworld.freeboard.controller.port.FreeBoardResponse;
+import com.phcworld.freeboard.domain.FreeBoard;
 import com.phcworld.freeboard.domain.dto.FreeBoardRequest;
-import com.phcworld.common.jwt.TokenProviderImpl;
+import com.phcworld.freeboard.domain.dto.FreeBoardSearch;
+import com.phcworld.mock.FakeAuthentication;
+import com.phcworld.mock.FakeLocalDateTimeHolder;
+import com.phcworld.mock.TestContainer;
 import com.phcworld.user.domain.Authority;
-import com.phcworld.common.utils.FileConvertUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
+import com.phcworld.user.domain.User;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.List;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@Slf4j
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
 class FreeBoardApiControllerTest {
 
-    @Autowired
-    private MockMvc mvc;
-
-    @SpyBean
-    private TokenProviderImpl tokenProvider;
-
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private static String token;
-
-    @BeforeEach
-    void 토큰_생성(){
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(new String[]{Authority.ROLE_ADMIN.toString()})
-                        .map(SimpleGrantedAuthority::new)
-                        .toList();
-        UserDetails principal = new org.springframework.security.core.userdetails.User("1", "", authorities);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
-        long now = (new Date()).getTime();
-        String accessToken = tokenProvider.generateAccessToken(authentication, now);
-        token = "Bearer " + accessToken;
-    }
-
     @Test
-    void 게시글_등록_성공() throws Exception {
-        FreeBoardRequest requestDto = FreeBoardRequest.builder()
-                .title("title")
-                .contents("contents")
+    @DisplayName("회원은 게시글을 등록할 수 있다.")
+    void register(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
                 .build();
-        String request = objectMapper.writeValueAsString(requestDto);
-
-        this.mvc.perform(post("/api/freeboards")
-                        .header("Authorization", token)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void 게시글_등록_성공_이미지_첨부() throws Exception {
-        String contents = FileConvertUtils.getFileData("blank-profile-picture.png");
-        contents = "<p><img src=\"" + contents + "\"></p>";
-        String contents2 = FileConvertUtils.getFileData("PHC-WORLD.png");
-        contents2 = "<p><img src=\"" + contents2 + "\"></p>";
-        FreeBoardRequest requestDto = FreeBoardRequest.builder()
-                .title("title")
-                .contents(contents + contents2)
-                .build();
-        String request = objectMapper.writeValueAsString(requestDto);
-
-        this.mvc.perform(post("/api/freeboards")
-                        .header("Authorization", token)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void 게시글_목록_조회() throws Exception {
-
-        this.mvc.perform(get("/api/freeboards")
-                        .header("Authorization", token)
-                        .with(csrf())
-                        .param("pageNum", "1")
-                        .param("pageSize", "10")
-                        .param("searchType", "0")
-                        .param("keyword", ""))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void 게시글_하나_조회() throws Exception {
-
-        this.mvc.perform(get("/api/freeboards/{freeBoardId}", 1L)
-                        .header("Authorization", token)
-                        .with(csrf()))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void 게시글_하나_조회_데이터_없음() throws Exception {
-        this.mvc.perform(get("/api/freeboards/{freeBoardId}", 999L)
-                        .header("Authorization", token)
-                        .with(csrf()))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void 게시글_수정_성공() throws Exception {
-        String contents = FileConvertUtils.getFileData("blank-profile-picture.png");
-        contents = "<p><img src=\"" + contents + "\"></p>";
-        FreeBoardRequest requestDto = FreeBoardRequest.builder()
+        testContainer.userRepository.save(User.builder()
                 .id(1L)
-                .title("제목")
-                .contents(contents)
-                .build();
-
-        String request = objectMapper.writeValueAsString(requestDto);
-        this.mvc.perform(patch("/api/freeboards")
-                        .header("Authorization", token)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void 게시글_수정_실패_권한_없음() throws Exception {
-        FreeBoardRequest requestDto = FreeBoardRequest.builder()
-                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build());
+        FreeBoardRequest request = FreeBoardRequest.builder()
                 .title("제목")
                 .contents("내용")
                 .build();
-        String request = objectMapper.writeValueAsString(requestDto);
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(new String[]{Authority.ROLE_USER.toString()})
-                        .map(SimpleGrantedAuthority::new)
-                        .toList();
-        UserDetails principal = new org.springframework.security.core.userdetails.User("2", "", authorities);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
-        long now = (new Date()).getTime();
-        String accessToken = "Bearer " + tokenProvider.generateAccessToken(authentication, now);
+        // when
+        ResponseEntity<FreeBoardResponse> result = testContainer.freeBoardApiController.register(request);
 
-        this.mvc.perform(patch("/api/freeboards")
-                        .header("Authorization", accessToken)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request))
-                .andDo(print())
-                .andExpect(status().isUnauthorized());
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(201));
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody().title()).isEqualTo("제목");
+        assertThat(result.getBody().contents()).isEqualTo("내용");
+        assertThat(result.getBody().count()).isZero();
+        assertThat(result.getBody().countOfAnswer()).isZero();
+        assertThat(result.getBody().createDate()).isEqualTo(LocalDateTimeUtils.getTime(time));
+        assertThat(result.getBody().isNew()).isTrue();
     }
 
     @Test
-    void 게시글_삭제_성공() throws Exception {
-        this.mvc.perform(delete("/api/freeboards/{freeBoardId}", 1L)
-                        .header("Authorization", token)
-                        .with(csrf()))
-                .andDo(print())
-                .andExpect(status().isOk());
+    @DisplayName("가입하지 않은 회원은 게시글을 등록할 수 없다.")
+    void failedRegisterWhenNotFoundUser(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        FreeBoardRequest request = FreeBoardRequest.builder()
+                .title("제목")
+                .contents("내용")
+                .build();
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        // then
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            testContainer.freeBoardApiController.register(request);
+        });
     }
 
     @Test
-    void 게시글_삭제_실패_권한_없음() throws Exception {
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(new String[]{Authority.ROLE_USER.toString()})
-                        .map(SimpleGrantedAuthority::new)
-                        .toList();
-        UserDetails principal = new org.springframework.security.core.userdetails.User("2", "", authorities);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
-        long now = (new Date()).getTime();
-        String accessToken = "Bearer " + tokenProvider.generateAccessToken(authentication, now);
+    @DisplayName("제목으로 검색해서 게시글 목록을 가져올 수 있다.")
+    void getListWhenSearchTitle(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(2L)
+                .title("안녕하세요")
+                .contents("잘부탁드립니다")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        FreeBoardSearch search = FreeBoardSearch.builder()
+                .searchType(0)
+                .keyword("제목")
+                .pageNum(1)
+                .pageSize(5)
+                .build();
 
-        this.mvc.perform(delete("/api/freeboards/{freeBoardId}", 1L)
-                        .header("Authorization", accessToken)
-                        .with(csrf()))
-                .andDo(print())
-                .andExpect(status().isUnauthorized());
+        // when
+        ResponseEntity<List<FreeBoardResponse>> result = testContainer.freeBoardApiController.getList(search);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody()).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("내용으로 검색해서 게시글 목록을 가져올 수 있다.")
+    void getListWhenSearchContent(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(2L)
+                .title("안녕하세요")
+                .contents("잘부탁드립니다")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        FreeBoardSearch search = FreeBoardSearch.builder()
+                .searchType(1)
+                .keyword("내용")
+                .pageNum(1)
+                .pageSize(5)
+                .build();
+
+        // when
+        ResponseEntity<List<FreeBoardResponse>> result = testContainer.freeBoardApiController.getList(search);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody()).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("작성자 이름으로 검색해서 게시글 목록을 가져올 수 있다.")
+    void getListWhenSearchWriterName(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(2L)
+                .title("안녕하세요")
+                .contents("잘부탁드립니다")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        FreeBoardSearch search = FreeBoardSearch.builder()
+                .searchType(3)
+                .keyword("테스트")
+                .pageNum(1)
+                .pageSize(5)
+                .build();
+
+        // when
+        ResponseEntity<List<FreeBoardResponse>> result = testContainer.freeBoardApiController.getList(search);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("회원은 게시글의 id로 게시글을 가져올 수 있다.")
+    void getFreeBoard(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        long id = 1;
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        ResponseEntity<FreeBoardResponse> result = testContainer.freeBoardApiController.getFreeBoard(id);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody().id()).isEqualTo(1);
+        assertThat(result.getBody().title()).isEqualTo("제목");
+        assertThat(result.getBody().contents()).isEqualTo("내용");
+        assertThat(result.getBody().count()).isEqualTo(1);
+        assertThat(result.getBody().isNew()).isTrue();
+        assertThat(result.getBody().countOfAnswer()).isEqualTo(0);
+        assertThat(result.getBody().createDate()).isEqualTo(LocalDateTimeUtils.getTime(time));
+        assertThat(result.getBody().writer().email()).isEqualTo("test@test.test");
+    }
+
+    @Test
+    @DisplayName("id의 게시글이 없는 경우 게시글을 가져올 수 없다.")
+    void failedGetFreeBoardWhenNotFoundFreeBoard(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        long id = 1;
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        // then
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            testContainer.freeBoardApiController.getFreeBoard(id);
+        });
+    }
+
+    @Test
+    @DisplayName("id의 게시글이 삭제된 경우 게시글을 가져올 수 없다.")
+    void failedGetFreeBoardWhenDeletedFreeBoard(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(true)
+                .build());
+        long id = 1;
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        // then
+        Assertions.assertThrows(DeletedEntityException.class, () -> {
+            testContainer.freeBoardApiController.getFreeBoard(id);
+        });
+    }
+
+    @Test
+    @DisplayName("작성자는 게시글을 변경할 수 있다.")
+    void update(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        FreeBoardRequest request = FreeBoardRequest.builder()
+                .id(1L)
+                .title("제목수정")
+                .contents("내용수정")
+                .build();
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        ResponseEntity<FreeBoardResponse> result = testContainer.freeBoardApiController.update(request);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody().id()).isEqualTo(1);
+        assertThat(result.getBody().title()).isEqualTo("제목수정");
+        assertThat(result.getBody().contents()).isEqualTo("내용수정");
+        assertThat(result.getBody().count()).isZero();
+        assertThat(result.getBody().isNew()).isTrue();
+        assertThat(result.getBody().countOfAnswer()).isZero();
+        assertThat(result.getBody().createDate()).isEqualTo(LocalDateTimeUtils.getTime(time));
+        assertThat(result.getBody().writer().email()).isEqualTo("test@test.test");
+    }
+
+    @Test
+    @DisplayName("등록되지 않은 게시물은 수정할 수 없다.")
+    void failedUpdateWhenNotFound(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        FreeBoardRequest request = FreeBoardRequest.builder()
+                .id(1L)
+                .title("제목수정")
+                .contents("내용수정")
+                .build();
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        // then
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            testContainer.freeBoardApiController.update(request);
+        });
+    }
+
+    @Test
+    @DisplayName("이미 삭제된 게시물은 수정할 수 없다.")
+    void failedUpdateWhenDeleted(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(true)
+                .build());
+        FreeBoardRequest request = FreeBoardRequest.builder()
+                .id(1L)
+                .title("제목수정")
+                .contents("내용수정")
+                .build();
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        // then
+        Assertions.assertThrows(DeletedEntityException.class, () -> {
+            testContainer.freeBoardApiController.update(request);
+        });
+    }
+
+    @Test
+    @DisplayName("작성자가 다르면 수정할 수 없다.")
+    void failedUpdateWhenNotEqualWriter(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        FreeBoardRequest request = FreeBoardRequest.builder()
+                .id(1L)
+                .title("제목수정")
+                .contents("내용수정")
+                .build();
+        Authentication authentication = new FakeAuthentication(2, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        // then
+        Assertions.assertThrows(UnauthorizedException.class, () -> {
+            testContainer.freeBoardApiController.update(request);
+        });
+    }
+
+    @Test
+    @DisplayName("작성자는 삭제할 수 있다.")
+    void delete(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        Authentication authentication = new FakeAuthentication(1, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        ResponseEntity<FreeBoardResponse> result = testContainer.freeBoardApiController.delete(1L);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody().isDelete()).isTrue();
+    }
+
+    @Test
+    @DisplayName("관리자는 삭제할 수 있다.")
+    void deleteByAdmin(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        Authentication authentication = new FakeAuthentication(2, Authority.ROLE_ADMIN).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        ResponseEntity<FreeBoardResponse> result = testContainer.freeBoardApiController.delete(1L);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody().isDelete()).isTrue();
+    }
+
+    @Test
+    @DisplayName("등록되지 않은 게시물은 삭제할 수 없다.")
+    void failedDelteWhenNotFound(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        Authentication authentication = new FakeAuthentication(2, Authority.ROLE_ADMIN).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        // then
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            testContainer.freeBoardApiController.delete(1L);
+        });
+    }
+
+    @Test
+    @DisplayName("이미 삭제된 게시물은 삭제할 수 없다.")
+    void failedDeleteWhenDeleted(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(true)
+                .build());
+        Authentication authentication = new FakeAuthentication(2, Authority.ROLE_ADMIN).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        // then
+        Assertions.assertThrows(DeletedEntityException.class, () -> {
+            testContainer.freeBoardApiController.delete(1L);
+        });
+    }
+
+    @Test
+    @DisplayName("작성자가 다르면 삭제할 수 없다.")
+    void failedDeletedWhenNotEqualWriter(){
+        // given
+        LocalDateTime time = LocalDateTime.now();
+        TestContainer testContainer = TestContainer.builder()
+                .localDateTimeHolder(new FakeLocalDateTimeHolder(time))
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .email("test@test.test")
+                .name("테스트")
+                .password("test2")
+                .isDeleted(false)
+                .authority(Authority.ROLE_USER)
+                .profileImage("blank-profile-picture.png")
+                .createDate(time)
+                .build();
+        testContainer.userRepository.save(user);
+        testContainer.freeBoardRepository.save(FreeBoard.builder()
+                .id(1L)
+                .title("제목")
+                .contents("내용")
+                .countOfAnswer(0)
+                .count(0)
+                .writer(user)
+                .createDate(time)
+                .updateDate(time)
+                .isDeleted(false)
+                .build());
+        Authentication authentication = new FakeAuthentication(2, Authority.ROLE_USER).getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        // then
+        Assertions.assertThrows(UnauthorizedException.class, () -> {
+            testContainer.freeBoardApiController.delete(1L);
+        });
     }
 
 }

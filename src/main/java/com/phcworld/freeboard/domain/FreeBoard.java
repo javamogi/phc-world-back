@@ -2,7 +2,10 @@ package com.phcworld.freeboard.domain;
 
 import com.phcworld.answer.domain.FreeBoardAnswer;
 import com.phcworld.answer.dto.FreeBoardAnswerResponseDto;
+import com.phcworld.common.exception.model.DeletedEntityException;
+import com.phcworld.common.service.LocalDateTimeHolder;
 import com.phcworld.freeboard.domain.dto.FreeBoardRequest;
+import com.phcworld.freeboard.infrastructure.dto.FreeBoardSelect;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.domain.User;
 import lombok.AllArgsConstructor;
@@ -11,6 +14,7 @@ import lombok.Getter;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -27,18 +31,11 @@ public class FreeBoard {
     private boolean isDeleted;
     private boolean isModifyAuthority;
     private boolean isDeleteAuthority;
+    private long countOfAnswer;
     private List<FreeBoardAnswer> answers;
 
-    public static FreeBoard from(FreeBoardRequest request, User writer){
-        return FreeBoard.builder()
-                .writer(writer)
-                .title(request.title())
-                .contents(request.contents())
-                .build();
-    }
-
     public int getCountOfAnswer() {
-        return answers.size();
+        return answers == null ? 0 : answers.size();
     }
 
     public boolean isNew() {
@@ -51,35 +48,110 @@ public class FreeBoard {
     }
 
     public List<FreeBoardAnswerResponseDto> getAnswers(){
-        return answers.stream()
+        return answers != null ? answers.stream()
                 .map(FreeBoardAnswerResponseDto::of)
-                .toList();
+                .toList() : new ArrayList<>();
     }
 
     public boolean matchUser(Long userId) {
-        return !this.writer.getId().equals(userId);
+        return this.writer.getId().equals(userId);
     }
 
-    public void addCount() {
-        this.count += 1;
+    public FreeBoard addCount() {
+        return FreeBoard.builder()
+                .id(id)
+                .title(title)
+                .contents(contents)
+                .count(++count)
+                .isDeleted(isDeleted)
+                .createDate(createDate)
+                .updateDate(updateDate)
+                .writer(writer)
+                .countOfAnswer(countOfAnswer)
+                .answers(answers)
+                .isModifyAuthority(isModifyAuthority)
+                .isDeleteAuthority(isDeleteAuthority)
+                .build();
     }
 
-    public void update(String title, String contents) {
-        this.title = title;
-        this.contents = contents;
+    public FreeBoard update(String title, String contents) {
+        return FreeBoard.builder()
+                .id(id)
+                .title(title)
+                .contents(contents)
+                .count(count)
+                .isDeleted(isDeleted)
+                .createDate(createDate)
+                .updateDate(updateDate)
+                .writer(writer)
+                .countOfAnswer(countOfAnswer)
+                .answers(answers)
+                .isModifyAuthority(isModifyAuthority)
+                .isDeleteAuthority(isDeleteAuthority)
+                .build();
     }
 
-    public void delete() {
-        this.isDeleted = true;
+    public FreeBoard delete() {
+        return FreeBoard.builder()
+                .id(id)
+                .title(title)
+                .contents(contents)
+                .count(count)
+                .isDeleted(true)
+                .createDate(createDate)
+                .updateDate(updateDate)
+                .writer(writer)
+                .countOfAnswer(countOfAnswer)
+                .answers(answers)
+                .isModifyAuthority(isModifyAuthority)
+                .isDeleteAuthority(isDeleteAuthority)
+                .build();
     }
 
-    public void setAuthority(Long userId, Authority authorities) {
-        if(!matchUser(userId)){
+    public FreeBoard setAuthorities(Long userId, Authority authorities) {
+        if(matchUser(userId)){
             isModifyAuthority = true;
             isDeleteAuthority = true;
         }
         if(authorities == Authority.ROLE_ADMIN){
             isDeleteAuthority = true;
         }
+        return FreeBoard.builder()
+                .id(id)
+                .title(title)
+                .contents(contents)
+                .count(count)
+                .isDeleted(isDeleted)
+                .createDate(createDate)
+                .updateDate(updateDate)
+                .writer(writer)
+                .countOfAnswer(countOfAnswer)
+                .answers(answers)
+                .isModifyAuthority(isModifyAuthority)
+                .isDeleteAuthority(isDeleteAuthority)
+                .build();
+    }
+
+    public static FreeBoard from(FreeBoardRequest request, User writer, LocalDateTimeHolder localDateTimeHolder){
+        return FreeBoard.builder()
+                .writer(writer)
+                .title(request.title())
+                .contents(request.contents())
+                .createDate(localDateTimeHolder.now())
+                .build();
+    }
+
+    public static FreeBoard from(FreeBoardSelect freeBoardSelect){
+        return FreeBoard.builder()
+                .id(freeBoardSelect.getId())
+                .writer(freeBoardSelect.getWriter().toModel())
+                .title(freeBoardSelect.getTitle())
+                .contents(freeBoardSelect.getContents())
+                .isDeleted(freeBoardSelect.isDeleted())
+                .createDate(freeBoardSelect.getCreateDate())
+                .updateDate(freeBoardSelect.getUpdateDate())
+                .count(freeBoardSelect.getCount())
+                .countOfAnswer(freeBoardSelect.getCountOfAnswer())
+                .build();
     }
 }

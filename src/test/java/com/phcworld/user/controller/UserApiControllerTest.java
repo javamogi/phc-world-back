@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;

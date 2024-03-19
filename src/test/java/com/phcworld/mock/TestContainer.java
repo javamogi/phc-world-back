@@ -2,6 +2,10 @@ package com.phcworld.mock;
 
 import com.phcworld.common.jwt.service.CustomUserDetailsService;
 import com.phcworld.common.service.LocalDateTimeHolder;
+import com.phcworld.freeboard.controller.FreeBoardApiController;
+import com.phcworld.freeboard.controller.port.FreeBoardService;
+import com.phcworld.freeboard.service.FreeBoardServiceImpl;
+import com.phcworld.freeboard.service.port.FreeBoardRepository;
 import com.phcworld.user.controller.LoginApiController;
 import com.phcworld.user.controller.UserApiController;
 import com.phcworld.user.controller.port.LoginService;
@@ -28,6 +32,12 @@ public class TestContainer {
 
     public final UserDetailsService userDetailsService;
 
+    public final FreeBoardRepository freeBoardRepository;
+
+    public final FreeBoardService freeBoardService;
+
+    public final FreeBoardApiController freeBoardApiController;
+
     @Builder
     public TestContainer(LocalDateTimeHolder localDateTimeHolder){
         this.passwordEncoder = new FakePasswordEncode("test2");
@@ -49,6 +59,15 @@ public class TestContainer {
                 .build();
         this.loginApiController = LoginApiController.builder()
                 .loginService(loginService)
+                .build();
+        this.freeBoardRepository = new FakeFreeBoardRepository();
+        this.freeBoardService = FreeBoardServiceImpl.builder()
+                .freeBoardRepository(freeBoardRepository)
+                .localDateTimeHolder(localDateTimeHolder)
+                .userRepository(userRepository)
+                .build();
+        this.freeBoardApiController = FreeBoardApiController.builder()
+                .freeBoardService(freeBoardService)
                 .build();
     }
 
