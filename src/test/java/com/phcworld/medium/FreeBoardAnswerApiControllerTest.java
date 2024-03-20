@@ -1,7 +1,7 @@
-package com.phcworld.answer.web;
+package com.phcworld.medium;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.phcworld.answer.dto.FreeBoardAnswerRequestDto;
+import com.phcworld.answer.domain.dto.FreeBoardAnswerRequest;
 import com.phcworld.common.jwt.TokenProviderImpl;
 import com.phcworld.user.domain.Authority;
 import lombok.extern.slf4j.Slf4j;
@@ -61,13 +61,13 @@ class FreeBoardAnswerApiControllerTest {
 
     @Test
     void 답변_등록_성공() throws Exception {
-        FreeBoardAnswerRequestDto requestDto = FreeBoardAnswerRequestDto.builder()
+        FreeBoardAnswerRequest requestDto = FreeBoardAnswerRequest.builder()
                 .boardId(1L)
                 .contents("contents")
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
-        this.mvc.perform(post("/api/freeboards/answers")
+        this.mvc.perform(post("/freeboards/answers")
                         .header("Authorization", token)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -78,13 +78,13 @@ class FreeBoardAnswerApiControllerTest {
 
     @Test
     void 답변_등록_실패_없는_게시물() throws Exception {
-        FreeBoardAnswerRequestDto requestDto = FreeBoardAnswerRequestDto.builder()
+        FreeBoardAnswerRequest requestDto = FreeBoardAnswerRequest.builder()
                 .boardId(1000L)
                 .contents("contents")
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
-        this.mvc.perform(post("/api/freeboards/answers")
+        this.mvc.perform(post("/freeboards/answers")
                         .header("Authorization", token)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -96,7 +96,7 @@ class FreeBoardAnswerApiControllerTest {
     @Test
     void 답변_하나_조회() throws Exception {
 
-        this.mvc.perform(get("/api/freeboards/answers/{id}", 1L)
+        this.mvc.perform(get("/freeboards/answers/{id}", 1L)
                         .header("Authorization", token)
                         .with(csrf()))
                 .andDo(print())
@@ -106,7 +106,7 @@ class FreeBoardAnswerApiControllerTest {
     @Test
     void 답변_하나_조회_없는_답변() throws Exception {
 
-        this.mvc.perform(get("/api/freeboards/answers/{id}", 2L)
+        this.mvc.perform(get("/freeboards/answers/{id}", 2L)
                         .header("Authorization", token)
                         .with(csrf()))
                 .andDo(print())
@@ -115,13 +115,13 @@ class FreeBoardAnswerApiControllerTest {
 
     @Test
     void 답변_수정_성공() throws Exception {
-        FreeBoardAnswerRequestDto requestDto = FreeBoardAnswerRequestDto.builder()
+        FreeBoardAnswerRequest requestDto = FreeBoardAnswerRequest.builder()
                 .answerId(1L)
                 .contents("contents 수정")
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
-        this.mvc.perform(patch("/api/freeboards/answers")
+        this.mvc.perform(patch("/freeboards/answers")
                         .header("Authorization", token)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -132,13 +132,13 @@ class FreeBoardAnswerApiControllerTest {
 
     @Test
     void 답변_수정_실패_없는_답변() throws Exception {
-        FreeBoardAnswerRequestDto requestDto = FreeBoardAnswerRequestDto.builder()
+        FreeBoardAnswerRequest requestDto = FreeBoardAnswerRequest.builder()
                 .answerId(2L)
                 .contents("contents 수정")
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
-        this.mvc.perform(patch("/api/freeboards/answers")
+        this.mvc.perform(patch("/freeboards/answers")
                         .header("Authorization", token)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -158,13 +158,13 @@ class FreeBoardAnswerApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = "Bearer " + tokenProvider.generateAccessToken(authentication, now);
 
-        FreeBoardAnswerRequestDto requestDto = FreeBoardAnswerRequestDto.builder()
+        FreeBoardAnswerRequest requestDto = FreeBoardAnswerRequest.builder()
                 .answerId(1L)
                 .contents("contents 수정")
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
-        this.mvc.perform(patch("/api/freeboards/answers")
+        this.mvc.perform(patch("/freeboards/answers")
                         .header("Authorization", accessToken)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -175,7 +175,7 @@ class FreeBoardAnswerApiControllerTest {
 
     @Test
     void 답변_삭제_성공() throws Exception {
-        this.mvc.perform(delete("/api/freeboards/answers/{id}", 1L)
+        this.mvc.perform(delete("/freeboards/answers/{id}", 1L)
                         .header("Authorization", token)
                         .with(csrf()))
                 .andDo(print())
@@ -184,7 +184,7 @@ class FreeBoardAnswerApiControllerTest {
 
     @Test
     void 답변_삭제_실패_없는_답변() throws Exception {
-        this.mvc.perform(delete("/api/freeboards/answers/{id}", 2L)
+        this.mvc.perform(delete("/freeboards/answers/{id}", 2L)
                         .header("Authorization", token)
                         .with(csrf()))
                 .andDo(print())
@@ -202,7 +202,7 @@ class FreeBoardAnswerApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = "Bearer " + tokenProvider.generateAccessToken(authentication, now);
 
-        this.mvc.perform(delete("/api/freeboards/answers/{id}", 1L)
+        this.mvc.perform(delete("/freeboards/answers/{id}", 1L)
                         .header("Authorization", accessToken)
                         .with(csrf()))
                 .andDo(print())
