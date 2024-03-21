@@ -14,6 +14,7 @@ import com.phcworld.freeboard.service.port.FreeBoardRepository;
 import com.phcworld.user.domain.Authority;
 import com.phcworld.user.domain.User;
 import com.phcworld.user.service.port.UserRepository;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Builder
 public class FreeBoardAnswerServiceImpl implements FreeBoardAnswerService {
 	
 	private final FreeBoardRepository freeBoardRepository;
@@ -44,11 +46,11 @@ public class FreeBoardAnswerServiceImpl implements FreeBoardAnswerService {
 		return freeBoardAnswerRepository.save(freeBoardAnswer);
 	}
 
-	@Override
-	public FreeBoardAnswer getFreeBoardAnswer(Long answerId) {
-		return freeBoardAnswerRepository.findById(answerId)
-				.orElseThrow(NotFoundException::new);
-	}
+//	@Override
+//	public FreeBoardAnswer getFreeBoardAnswer(Long answerId) {
+//		return freeBoardAnswerRepository.findById(answerId)
+//				.orElseThrow(NotFoundException::new);
+//	}
 
 	@Override
 	public FreeBoardAnswer update(FreeBoardAnswerRequest request) {

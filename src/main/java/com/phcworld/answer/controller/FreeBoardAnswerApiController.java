@@ -26,13 +26,13 @@ public class FreeBoardAnswerApiController {
 				.body(FreeBoardAnswerResponse.from(freeBoardAnswer));
 	}
 	
-	@GetMapping("/{id}")
-	public ResponseEntity<FreeBoardAnswerResponse> getFreeBoardAnswer(@PathVariable(name = "id") Long id) {
-		FreeBoardAnswer freeBoardAnswer = freeBoardAnswerService.getFreeBoardAnswer(id);
-		return ResponseEntity
-				.status(200)
-				.body(FreeBoardAnswerResponse.from(freeBoardAnswer));
-	}
+//	@GetMapping("/{id}")
+//	public ResponseEntity<FreeBoardAnswerResponse> getFreeBoardAnswer(@PathVariable(name = "id") Long id) {
+//		FreeBoardAnswer freeBoardAnswer = freeBoardAnswerService.getFreeBoardAnswer(id);
+//		return ResponseEntity
+//				.status(200)
+//				.body(FreeBoardAnswerResponse.from(freeBoardAnswer));
+//	}
 	
 	@PatchMapping("")
 	public ResponseEntity<FreeBoardAnswerResponse> update(@RequestBody FreeBoardAnswerRequest request) {

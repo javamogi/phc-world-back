@@ -101,13 +101,13 @@ class FreeBoardAnswerServiceTest {
 //        assertThat(response).isEqualTo(result);
 //    }
 
-    @Test
-    void 하나의_답변_조회_오류_없는_답변() {
-        when(answerService.getFreeBoardAnswer(1L)).thenThrow(NotFoundException.class);
-        Assertions.assertThrows(NotFoundException.class, () -> {
-            answerService.getFreeBoardAnswer(1L);
-        });
-    }
+//    @Test
+//    void 하나의_답변_조회_오류_없는_답변() {
+//        when(answerService.getFreeBoardAnswer(1L)).thenThrow(NotFoundException.class);
+//        Assertions.assertThrows(NotFoundException.class, () -> {
+//            answerService.getFreeBoardAnswer(1L);
+//        });
+//    }
 
 //    @Test
 //    void 답변_수정_성공() {
