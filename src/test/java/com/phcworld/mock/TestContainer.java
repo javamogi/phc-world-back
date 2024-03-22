@@ -1,5 +1,9 @@
 package com.phcworld.mock;
 
+import com.phcworld.answer.controller.FreeBoardAnswerApiController;
+import com.phcworld.answer.controller.port.FreeBoardAnswerService;
+import com.phcworld.answer.service.FreeBoardAnswerServiceImpl;
+import com.phcworld.answer.service.port.FreeBoardAnswerRepository;
 import com.phcworld.common.jwt.service.CustomUserDetailsService;
 import com.phcworld.common.service.LocalDateTimeHolder;
 import com.phcworld.freeboard.controller.FreeBoardApiController;
@@ -38,13 +42,17 @@ public class TestContainer {
 
     public final FreeBoardApiController freeBoardApiController;
 
+    public final FreeBoardAnswerRepository freeBoardAnswerRepository;
+    public final FreeBoardAnswerService freeBoardAnswerService;
+    public final FreeBoardAnswerApiController freeBoardAnswerApiController;
+
     @Builder
     public TestContainer(LocalDateTimeHolder localDateTimeHolder){
         this.passwordEncoder = new FakePasswordEncode("test2");
         this.userRepository = new FakeUserRepository();
         this.tokenProvider = new FakeTokenProvider(1, true);
         this.userDetailsService = new CustomUserDetailsService(userRepository);
-        UserServiceImpl userService =UserServiceImpl.builder()
+        UserServiceImpl userService = UserServiceImpl.builder()
                 .passwordEncoder(passwordEncoder)
                 .userRepository(userRepository)
                 .localDateTimeHolder(localDateTimeHolder)
@@ -68,6 +76,16 @@ public class TestContainer {
                 .build();
         this.freeBoardApiController = FreeBoardApiController.builder()
                 .freeBoardService(freeBoardService)
+                .build();
+        this.freeBoardAnswerRepository = new FakeFreeBoardAnswerRepository();
+        this.freeBoardAnswerService = FreeBoardAnswerServiceImpl.builder()
+                .localDateTimeHolder(localDateTimeHolder)
+                .userRepository(userRepository)
+                .freeBoardRepository(freeBoardRepository)
+                .freeBoardAnswerRepository(freeBoardAnswerRepository)
+                .build();
+        this.freeBoardAnswerApiController = FreeBoardAnswerApiController.builder()
+                .freeBoardAnswerService(freeBoardAnswerService)
                 .build();
     }
 

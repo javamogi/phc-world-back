@@ -1,9 +1,11 @@
 package com.phcworld.answer.controller;
 
+import com.phcworld.answer.controller.port.FreeBoardAnswerService;
 import com.phcworld.answer.domain.FreeBoardAnswer;
 import com.phcworld.answer.domain.dto.FreeBoardAnswerRequest;
 import com.phcworld.answer.controller.port.FreeBoardAnswerResponse;
 import com.phcworld.answer.service.FreeBoardAnswerServiceImpl;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +15,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/freeboards/answers")
 @RequiredArgsConstructor
+@Builder
 public class FreeBoardAnswerApiController {
 	
-	private final FreeBoardAnswerServiceImpl freeBoardAnswerService;
+	private final FreeBoardAnswerService freeBoardAnswerService;
 	
 	@PostMapping("")
 	@ResponseStatus(value = HttpStatus.CREATED)

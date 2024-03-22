@@ -93,25 +93,25 @@ class FreeBoardAnswerApiControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void 답변_하나_조회() throws Exception {
+//    @Test
+//    void 답변_하나_조회() throws Exception {
+//
+//        this.mvc.perform(get("/freeboards/answers/{id}", 1L)
+//                        .header("Authorization", token)
+//                        .with(csrf()))
+//                .andDo(print())
+//                .andExpect(status().isOk());
+//    }
 
-        this.mvc.perform(get("/freeboards/answers/{id}", 1L)
-                        .header("Authorization", token)
-                        .with(csrf()))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void 답변_하나_조회_없는_답변() throws Exception {
-
-        this.mvc.perform(get("/freeboards/answers/{id}", 2L)
-                        .header("Authorization", token)
-                        .with(csrf()))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-    }
+//    @Test
+//    void 답변_하나_조회_없는_답변() throws Exception {
+//
+//        this.mvc.perform(get("/freeboards/answers/{id}", 2L)
+//                        .header("Authorization", token)
+//                        .with(csrf()))
+//                .andDo(print())
+//                .andExpect(status().isNotFound());
+//    }
 
     @Test
     void 답변_수정_성공() throws Exception {

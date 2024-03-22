@@ -11,7 +11,8 @@ public record FreeBoardAnswerResponse(
         Long id,
         UserResponse writer,
         String contents,
-        String updatedDate
+        String updatedDate,
+        boolean isDeleted
 ) {
     public static FreeBoardAnswerResponse from(FreeBoardAnswer freeBoardAnswer) {
         return FreeBoardAnswerResponse.builder()
@@ -19,6 +20,7 @@ public record FreeBoardAnswerResponse(
                 .writer(UserResponse.from(freeBoardAnswer.getWriter()))
                 .contents(freeBoardAnswer.getContents())
                 .updatedDate(LocalDateTimeUtils.getTime(freeBoardAnswer.getUpdateDate()))
+                .isDeleted(freeBoardAnswer.isDeleted())
                 .build();
     }
 }
