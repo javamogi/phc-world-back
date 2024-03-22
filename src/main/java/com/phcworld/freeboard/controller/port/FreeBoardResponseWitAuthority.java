@@ -1,10 +1,8 @@
 package com.phcworld.freeboard.controller.port;
 
-import com.phcworld.answer.dto.FreeBoardAnswerResponseDto;
+import com.phcworld.answer.controller.port.FreeBoardAnswerResponse;
 import com.phcworld.common.utils.LocalDateTimeUtils;
 import com.phcworld.freeboard.domain.FreeBoard;
-import com.phcworld.freeboard.infrastructure.FreeBoardEntity;
-import com.phcworld.freeboard.infrastructure.dto.FreeBoardSelect;
 import com.phcworld.user.controller.port.UserResponse;
 import lombok.Builder;
 
@@ -22,7 +20,7 @@ public record FreeBoardResponseWitAuthority(
         Boolean isNew,
         Boolean isModifyAuthority,
         Boolean isDeleteAuthority,
-        List<FreeBoardAnswerResponseDto> answers
+        List<FreeBoardAnswerResponse> answers
 ) {
     public static FreeBoardResponseWitAuthority from(FreeBoard freeBoard){
         return FreeBoardResponseWitAuthority.builder()

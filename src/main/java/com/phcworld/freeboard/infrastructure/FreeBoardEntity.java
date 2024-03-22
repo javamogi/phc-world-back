@@ -1,10 +1,9 @@
 package com.phcworld.freeboard.infrastructure;
 
 import com.phcworld.answer.domain.FreeBoardAnswer;
+import com.phcworld.answer.infrastructure.FreeBoardAnswerEntity;
 import com.phcworld.freeboard.domain.FreeBoard;
-import com.phcworld.user.domain.User;
 import com.phcworld.user.infrastructure.UserEntity;
-import com.phcworld.common.utils.LocalDateTimeUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -15,9 +14,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -67,7 +64,7 @@ public class FreeBoardEntity {
 	private Boolean isDeleted = false;
 
 	@OneToMany(mappedBy = "freeBoardEntity", cascade = CascadeType.REMOVE)
-	private List<FreeBoardAnswer> freeBoardAnswers;
+	private List<FreeBoardAnswerEntity> freeBoardAnswers;
 
 	public static FreeBoardEntity from(FreeBoard freeBoard){
 		return FreeBoardEntity.builder()
@@ -92,7 +89,23 @@ public class FreeBoardEntity {
 				.updateDate(updateDate)
 				.count(count)
 				.isDeleted(isDeleted)
-				.answers(freeBoardAnswers)
+				.answers(freeBoardAnswers != null ?
+						freeBoardAnswers
+								.stream()
+								.map(FreeBoardAnswerEntity::toModel).toList() : null)
+				.build();
+	}
+
+	public FreeBoard toModelWithoutAnswers(){
+		return FreeBoard.builder()
+				.id(id)
+				.writer(writer.toModel())
+				.title(title)
+				.contents(contents)
+				.createDate(createDate)
+				.updateDate(updateDate)
+				.count(count)
+				.isDeleted(isDeleted)
 				.build();
 	}
 }

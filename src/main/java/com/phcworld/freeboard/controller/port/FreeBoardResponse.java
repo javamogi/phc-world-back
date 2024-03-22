@@ -1,10 +1,10 @@
 package com.phcworld.freeboard.controller.port;
 
-import com.phcworld.answer.dto.FreeBoardAnswerResponseDto;
+import com.phcworld.answer.controller.port.FreeBoardAnswerResponse;
+import com.phcworld.answer.domain.FreeBoardAnswer;
 import com.phcworld.common.utils.LocalDateTimeUtils;
 import com.phcworld.freeboard.domain.FreeBoard;
 import com.phcworld.freeboard.infrastructure.FreeBoardEntity;
-import com.phcworld.freeboard.infrastructure.dto.FreeBoardSelect;
 import com.phcworld.user.controller.port.UserResponse;
 import lombok.Builder;
 
@@ -21,7 +21,7 @@ public record FreeBoardResponse(
         Integer countOfAnswer,
         Boolean isNew,
         Boolean isDelete,
-        List<FreeBoardAnswerResponseDto> answers
+        List<FreeBoardAnswerResponse> answers
 ) {
     public static FreeBoardResponse from(FreeBoardEntity freeBoardEntity){
         return FreeBoardResponse.builder()
@@ -33,7 +33,9 @@ public record FreeBoardResponse(
                 .isDelete(freeBoardEntity.getIsDeleted())
                 .answers(freeBoardEntity.getFreeBoardAnswers()
                         .stream()
-                        .map(FreeBoardAnswerResponseDto::of)
+                        .map(answer -> {
+                            return FreeBoardAnswerResponse.from(answer.toModel());
+                        })
                         .toList())
                 .build();
     }

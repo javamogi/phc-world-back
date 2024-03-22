@@ -1,10 +1,10 @@
-package com.phcworld.answer.dto;
+package com.phcworld.answer.domain.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 @Builder
-public record FreeBoardAnswerRequestDto(
+public record FreeBoardAnswerRequest(
         Long boardId,
         Long answerId,
         @NotBlank(message = "내용을 입력하세요.")

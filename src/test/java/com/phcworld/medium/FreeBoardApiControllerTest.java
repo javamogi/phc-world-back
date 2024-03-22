@@ -69,13 +69,13 @@ class FreeBoardApiControllerTest {
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
-        this.mvc.perform(post("/api/freeboards")
+        this.mvc.perform(post("/freeboards")
                         .header("Authorization", token)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -90,19 +90,19 @@ class FreeBoardApiControllerTest {
                 .build();
         String request = objectMapper.writeValueAsString(requestDto);
 
-        this.mvc.perform(post("/api/freeboards")
+        this.mvc.perform(post("/freeboards")
                         .header("Authorization", token)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test
     void 게시글_목록_조회() throws Exception {
 
-        this.mvc.perform(get("/api/freeboards")
+        this.mvc.perform(get("/freeboards")
                         .header("Authorization", token)
                         .with(csrf())
                         .param("pageNum", "1")
@@ -116,7 +116,7 @@ class FreeBoardApiControllerTest {
     @Test
     void 게시글_하나_조회() throws Exception {
 
-        this.mvc.perform(get("/api/freeboards/{freeBoardId}", 1L)
+        this.mvc.perform(get("/freeboards/{freeBoardId}", 1L)
                         .header("Authorization", token)
                         .with(csrf()))
                 .andDo(print())
@@ -125,7 +125,7 @@ class FreeBoardApiControllerTest {
 
     @Test
     void 게시글_하나_조회_데이터_없음() throws Exception {
-        this.mvc.perform(get("/api/freeboards/{freeBoardId}", 999L)
+        this.mvc.perform(get("/freeboards/{freeBoardId}", 999L)
                         .header("Authorization", token)
                         .with(csrf()))
                 .andDo(print())
@@ -143,7 +143,7 @@ class FreeBoardApiControllerTest {
                 .build();
 
         String request = objectMapper.writeValueAsString(requestDto);
-        this.mvc.perform(patch("/api/freeboards")
+        this.mvc.perform(patch("/freeboards")
                         .header("Authorization", token)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -170,7 +170,7 @@ class FreeBoardApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = "Bearer " + tokenProvider.generateAccessToken(authentication, now);
 
-        this.mvc.perform(patch("/api/freeboards")
+        this.mvc.perform(patch("/freeboards")
                         .header("Authorization", accessToken)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -181,7 +181,7 @@ class FreeBoardApiControllerTest {
 
     @Test
     void 게시글_삭제_성공() throws Exception {
-        this.mvc.perform(delete("/api/freeboards/{freeBoardId}", 1L)
+        this.mvc.perform(delete("/freeboards/{freeBoardId}", 1L)
                         .header("Authorization", token)
                         .with(csrf()))
                 .andDo(print())
@@ -199,7 +199,7 @@ class FreeBoardApiControllerTest {
         long now = (new Date()).getTime();
         String accessToken = "Bearer " + tokenProvider.generateAccessToken(authentication, now);
 
-        this.mvc.perform(delete("/api/freeboards/{freeBoardId}", 1L)
+        this.mvc.perform(delete("/freeboards/{freeBoardId}", 1L)
                         .header("Authorization", accessToken)
                         .with(csrf()))
                 .andDo(print())

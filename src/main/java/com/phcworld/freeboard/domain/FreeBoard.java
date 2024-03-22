@@ -1,8 +1,8 @@
 package com.phcworld.freeboard.domain;
 
 import com.phcworld.answer.domain.FreeBoardAnswer;
-import com.phcworld.answer.dto.FreeBoardAnswerResponseDto;
-import com.phcworld.common.exception.model.DeletedEntityException;
+import com.phcworld.answer.infrastructure.FreeBoardAnswerEntity;
+import com.phcworld.answer.controller.port.FreeBoardAnswerResponse;
 import com.phcworld.common.service.LocalDateTimeHolder;
 import com.phcworld.freeboard.domain.dto.FreeBoardRequest;
 import com.phcworld.freeboard.infrastructure.dto.FreeBoardSelect;
@@ -47,9 +47,9 @@ public class FreeBoard {
         return (createdDateAndNowDifferenceMinutes / MINUTES_OF_HOUR) < HOUR_OF_DAY;
     }
 
-    public List<FreeBoardAnswerResponseDto> getAnswers(){
+    public List<FreeBoardAnswerResponse> getAnswers(){
         return answers != null ? answers.stream()
-                .map(FreeBoardAnswerResponseDto::of)
+                .map(FreeBoardAnswerResponse::from)
                 .toList() : new ArrayList<>();
     }
 

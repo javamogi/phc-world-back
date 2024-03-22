@@ -24,28 +24,4 @@ public class FreeBoardSelect {
     private boolean isDeleted;
     private Long countOfAnswer;
 
-//    public String getFormattedCreateDate() {
-//        return LocalDateTimeUtils.getTime(createDate);
-//    }
-//
-//    public String getFormattedUpdateDate() {
-//        return LocalDateTimeUtils.getTime(updateDate);
-//    }
-//
-//    public Boolean isNew(){
-//        final int HOUR_OF_DAY = 24;
-//        final int MINUTES_OF_HOUR = 60;
-//
-//        long createdDateAndNowDifferenceMinutes =
-//                Duration.between(createDate == null ? LocalDateTime.now() : createDate, LocalDateTime.now()).toMinutes();
-//        return (createdDateAndNowDifferenceMinutes / MINUTES_OF_HOUR) < HOUR_OF_DAY;
-//    }
-//
-//    public Integer getCountOfAnswer(){
-//        if(countOfAnswer == null){
-//            return 0;
-//        }
-//        return countOfAnswer.intValue();
-//    }
-
 }

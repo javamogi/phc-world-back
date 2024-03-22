@@ -1,6 +1,6 @@
 package com.phcworld.freeboard.infrastructure;
 
-import com.phcworld.answer.domain.QFreeBoardAnswer;
+import com.phcworld.answer.infrastructure.QFreeBoardAnswerEntity;
 import com.phcworld.freeboard.domain.dto.FreeBoardSearch;
 import com.phcworld.freeboard.infrastructure.dto.FreeBoardSelect;
 import com.phcworld.user.infrastructure.QUserEntity;
@@ -27,7 +27,7 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom{
     private final JPAQueryFactory queryFactory;
     QFreeBoardEntity freeBoard = QFreeBoardEntity.freeBoardEntity;
     QUserEntity user = QUserEntity.userEntity;
-    QFreeBoardAnswer answer = QFreeBoardAnswer.freeBoardAnswer;
+    QFreeBoardAnswerEntity answer = QFreeBoardAnswerEntity.freeBoardAnswerEntity;
 
     @Override
     public List<FreeBoardSelect> findByKeyword(FreeBoardSearch searchDto, Pageable pageable){
